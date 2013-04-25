@@ -1,0 +1,8 @@
+#!/usr/bin/env coffee
+
+# Buttercoin front binary script
+# This binary will start a single instance of a Buttercoin front-facing http webserver
+
+Buttercoin = require('../lib/buttercoin')
+butter = new Buttercoin();
+butter.front.start {port: 3000, host: "localhost", apiEndpoint: "ws://localhost:3001"}, (err, server) =>

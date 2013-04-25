@@ -1,0 +1,9 @@
+#!/usr/bin/env coffee
+
+# Buttercoin engine binary script
+# This binary will start a single instance of a Buttercoin trading engine
+
+Buttercoin = require('../lib/buttercoin')
+butter = new Buttercoin();
+
+butter.engine.start {port: 3002, host: "localhost"}, (err, server) =>
