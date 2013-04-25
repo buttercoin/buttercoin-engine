@@ -3,9 +3,7 @@ buttercoin-engine
 
 The Buttercoin trade execution engine
 =======
-Buttercoin
-==========
-### An Open Source Bitcoin Exchange
+### An Open Source Trade Execution Engine
 
 Copyright &copy; 2013 Buttercoin Developers
 
