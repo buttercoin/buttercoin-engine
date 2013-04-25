@@ -1,15 +1,14 @@
 {
-  "name": "buttercoin",
-  "version": "0.0.2",
-  "description": "Open Source Bitcoin Exchange",
+  "name": "buttercoin-engine",
+  "version": "0.0.3",
+  "description": "Open Source Trade Execution Engine",
   "main": "./lib/",
   "scripts": {
-    "start": "bin/dev-standalone",
     "test": "sh test.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/buttercoin/buttercoin.git"
+    "url": "git://github.com/buttercoin-engine/buttercoin-engine.git"
   },
   "dependencies": {
     "isnode": "*",
