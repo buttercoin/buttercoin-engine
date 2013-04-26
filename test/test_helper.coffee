@@ -105,6 +105,9 @@ global.test.module_helpers =
   'Datastore.SuperMarket': ->
     global.SuperMarket = global.Datastore.SuperMarket
 
+  'Datastore.Market': ->
+    global.Market = global.Datastore.Market
+
   'Datastore.Order': ->
     global.Order = global.Datastore.Order
 
