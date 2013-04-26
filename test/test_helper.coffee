@@ -80,6 +80,10 @@ global.test =
       key = parts[parts.length - 1]
       try
         owner[key] = require("../lib/#{filename}")
+      catch e
+        # Only raise if there isn't a helper module with this name
+        unless global.test.module_helpers[r]
+          throw e
       finally
         global.test.module_helpers[r]?()
 
@@ -106,3 +110,7 @@ global.test.module_helpers =
 
   'TradeEngine': ->
     global.TradeEngine = require("../lib/trade_engine")
+
+  #'Journal': ->
+  #  kJournalFile = 'test.log'
+  #  TODO - before/after cleanup log files

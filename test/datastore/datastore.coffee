@@ -41,7 +41,7 @@ describe 'DataStore', ->
         amount: deposit_amount
       .toString().should.equal(deposit_amount)
 
-    it.only 'should be able to place an order with sufficient funds', ->
+    it 'should be able to place an order with sufficient funds', ->
       account_name = 'Peter'
       account = @mockify(new Account())
       offer_amount = amt '10'
