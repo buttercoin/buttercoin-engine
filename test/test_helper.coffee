@@ -101,5 +101,8 @@ global.test.module_helpers =
   'Datastore.SuperMarket': ->
     global.SuperMarket = global.Datastore.SuperMarket
 
+  'Datastore.Order': ->
+    global.Order = global.Datastore.Order
+
   'TradeEngine': ->
     global.TradeEngine = require("../lib/trade_engine")

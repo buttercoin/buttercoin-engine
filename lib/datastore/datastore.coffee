@@ -7,6 +7,7 @@ Amount = require('./amount')
 
 # NON REENTRANT
 
+# TODO - move to some core utility module
 isString = (s) ->
   return typeof(s) == 'string' || s instanceof String
 
@@ -14,31 +15,26 @@ isNumber = (s) ->
   return typeof(s) == 'number' || s instanceof Number
 
 module.exports = class DataStore
-  constructor: ->
-    @balancesheet = new BalanceSheet()
-    @supermarket = new SuperMarket()
+  constructor: (@balancesheet, @supermarket) ->
 
-  add_deposit: (args) =>
-    if not isString(args.account)
-      throw Error("Account must be a String")
+  deposit: (args) =>
+    #if not isString(args.account)
+      #throw Error("Account must be a String")
     account = @balancesheet.get_account( args.account )
-    currency = account.get_currency( args.currency )
 
     try
       amount = new Amount(args.amount)
     catch e
-      error = new Error('Only string amounts are supported in order to ensure accuracy')
+      throw Error('Only string amounts are supported in order to ensure accuracy')
 
-    if typeof error == 'undefined'
-      currency.increase_balance(amount)
-      if args.callback
-        return args.callback( currency.get_balance() )
-    else
-      if args.callback
-        return args.callback(null, error)
-    if not isString(args.currency)
-      throw Error("Currency must be a String")
+    account.credit(args.currency, amount)
 
+  place_order: (args) =>
+    account = @balancesheet.get_account( args.account )
+    order = account.create_order(args.offered_currency, args.offered_amount, args.received_currency, args.received_amount)
+    @supermarket.route_order(order)
+
+    ###
   add_order: (args) =>
     account = @balancesheet.get_account( args.account )
 
@@ -63,6 +59,6 @@ module.exports = class DataStore
     market = @supermarket.get_market( args.offered_currency, args.received_currency )
 
     market.add_order( account, args.offered_currency, args.offered_amount, args.received_amount )
-
+    ###
 
 

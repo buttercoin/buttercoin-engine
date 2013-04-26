@@ -29,3 +29,8 @@ module.exports = class Account
     @balances[currency] = balance.subtract(amount)
     return @get_balance(currency)
 
+  create_order: (offered_currency, offered_amount, received_currency, receipt_amount) =>
+    #balance = @get_balance(offered_currency)
+    #unless balance.compareTo(offered_amount) >= 0
+      
+

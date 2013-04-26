@@ -33,3 +33,6 @@ describe 'Account', ->
     @account.credit('USD', amt(amount))
     @account.debit('USD', amt(amount)).toString().should.equal(amount)
 
+  xit 'should be able to create an order with sufficient balance'
+  xit 'should fail when trying to create an order with insufficient balance'
+

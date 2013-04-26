@@ -20,3 +20,5 @@ module.exports = class SuperMarket
     if not (market instanceof Market)
       @markets[canonical_pair_string] = market = new Market( canonical_pair[0], canonical_pair[1] )
     return market
+
+  route_order: (order) =>

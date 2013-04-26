@@ -6,6 +6,8 @@ describe 'SuperMarket', ->
     supermarket = new SuperMarket()
     Object.keys(supermarket.markets).should.be.empty
 
+  xit 'should be able to route an order to the appropriate market'
+
   it 'should add new market instances as they are requested if and only if they dont already exist', ->
     supermarket = new SuperMarket()
 
