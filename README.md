@@ -53,5 +53,5 @@ Discussion
 * [Hackpad](https://buttercoin.hackpad.com/)
 * [Trello](https://trello.com/board/buttercoin/516af0ca86d48fe14f0022ab)
 
-[![Build Status](https://travis-ci.org/buttercoin/buttercoin.png)](https://travis-ci.org/buttercoin/buttercoin)
+[![Build Status](https://travis-ci.org/buttercoin/buttercoin-engine.png)](https://travis-ci.org/buttercoin/buttercoin-engine)
 
