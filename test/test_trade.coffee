@@ -13,10 +13,10 @@ kTestFilename = 'test.log'
 
 describe 'TradeEngine', ->
   beforeEach =>
-    TestHelper.clean_state_sync()
+    TestHelper.remove_log(kTestFilename)
 
   afterEach =>
-    TestHelper.clean_state_sync()
+    TestHelper.remove_log(kTestFilename)
 
   it 'can perform deposit', (finish) ->
     deferred = Q.defer()
