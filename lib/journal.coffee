@@ -9,25 +9,21 @@ logger = require('../lib/logger')
 # It returns a promise that's ready when the journal has replayed everything and can .record()
 
 module.exports = class Journal
-  constructor: (@filename) ->
-    @filename = @filename or 'journal.log'
+  constructor: (@filename='journal.log') ->
     @readstream = null
     @writefd = null
 
   start: (execute_operation) =>
     return QFS.exists(@filename).then (retval) =>
       if retval
-        # console.log 'LOG EXISTS'
         Q.fcall =>
           @replay_log(execute_operation).then =>
-            # console.log 'DONE REPLAYING'
             # This is dangerous
             @initialize_log("a")
       else
         # console.log 'LOG DOES NOT EXIST'
         Q.fcall =>
-          @initialize_log().then =>
-            return null
+          @initialize_log()
 
   shutdown: =>
     # logger.info 'SHUTTING DOWN JOURNAL'
@@ -39,9 +35,7 @@ module.exports = class Journal
           @writefd = null
     return promise
 
-  initialize_log: (flags) =>
-    if not flags
-      flags = "w"
+  initialize_log: (flags="w") =>
     # console.log 'INITIALIZING LOG'
     Q.nfcall(fs.open, @filename, flags).then (writefd) =>
       # console.log 'GOT FD', writefd

@@ -21,15 +21,27 @@ chai.use (_chai, utils) ->
                 "Expected #\{this} not to have kind of #{kind} (got #{obj.kind}"
 
 
+global.setup_mocking = ->
+  @beforeEach ->
+    @mockify ||= (key) ->
+      obj = if (typeof key) is 'string' then @[key] else key
+      @mocks.unshift sinon.mock(obj)
+      @["_#{key}"] = @mocks[0] if (typeof key) is 'string'
+
+      return @mocks[0]
+
+    @mocks = []
+
+  @afterEach ->
+    for _, m of @mocks
+      m.verify()
+      m.restore()
+
 class TestHelper
   constructor: ->
 
-  @clean_state_sync: ->
-    if fs.existsSync 'journal.log'
-      fs.unlinkSync 'journal.log'
-
-    if fs.existsSync 'test.log'
-      fs.unlinkSync 'test.log'
+  @remove_log: (filename='test.log') ->
+    fs.unlinkSync(filename) if fs.existsSync(filename)
 
 global.TestHelper = TestHelper
 
