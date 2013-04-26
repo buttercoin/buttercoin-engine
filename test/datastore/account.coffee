@@ -1,31 +1,35 @@
-Account = require('../../lib/datastore/account')
-Currency = require('../../lib/datastore/currency')
+test.uses "Datastore.Account",
+          "Datastore.Amount"
 
 describe 'Account', ->
-  it 'should initialize with no currencies', ->
-    account = new Account()
-    Object.keys(account.currencies).should.be.empty
+  beforeEach ->
+    @account = new Account()
 
-  it 'should add new currency instances as they are requested if and only if they dont already exist', ->
-    account = new Account()
+  it 'should initialize with no balances', ->
+    Object.keys(@account.balances).should.be.empty
 
-    # get_currency should return instances of Currency
-    usd_currency = account.get_currency('USD')
-    usd_currency.should.be.an.instanceOf(Currency)
-    eur_currency = account.get_currency('EUR')
-    eur_currency.should.be.an.instanceOf(Currency)
-    btc_currency = account.get_currency('BTC')
-    btc_currency.should.be.an.instanceOf(Currency)
+  it 'should report a balance of zero for an unused currency', ->
+    for c in Object.keys(Account.supported_currencies)
+      @account.get_balance(c).toString().should.equal('0')
 
-    # currencies should be different instances
-    btc_currency.should.not.equal(usd_currency)
-    btc_currency.should.not.equal(eur_currency)
-    usd_currency.should.not.equal(eur_currency)
+  it 'should raise an error if accessing an unsupported currency', ->
+    expect =>
+      @account.get_balance('fake')
+    .to.throw('fake is not a supported currency')
 
-    # get the currencies again and should get the same instances
-    another_usd_currency = account.get_currency('USD')
-    another_usd_currency.should.equal(usd_currency)
-    another_eur_currency = account.get_currency('EUR')
-    another_eur_currency.should.equal(eur_currency)
-    another_btc_currency = account.get_currency('BTC')
-    another_btc_currency.should.equal(btc_currency)
+    expect =>
+      @account.credit('fake', amt(1))
+    .to.throw('fake is not a supported currency')
+
+  xit 'should return a copy of a balance value'
+
+  it 'should be able to credit a balance', ->
+    amount = '3.141596281203071307479289982375230237197499234'
+    @account.credit('USD', amt(amount)).toString().should.equal(amount)
+
+  it 'should be able to debit a balance', ->
+    amount = '5.398982919394105808134814845710341848259923589'
+    @account.credit('USD', amt(amount))
+    @account.credit('USD', amt(amount))
+    @account.debit('USD', amt(amount)).toString().should.equal(amount)
+
