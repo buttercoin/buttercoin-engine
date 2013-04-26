@@ -1,5 +1,6 @@
 test.uses "Datastore.Account",
-          "Datastore.Amount"
+          "Datastore.Amount",
+          "Datastore.Order"
 
 describe 'Account', ->
   beforeEach ->
@@ -33,6 +34,23 @@ describe 'Account', ->
     @account.credit('USD', amt(amount))
     @account.debit('USD', amt(amount)).toString().should.equal(amount)
 
-  xit 'should be able to create an order with sufficient balance'
-  xit 'should fail when trying to create an order with insufficient balance'
+  it 'should fail when trying to create an order with insufficient balance', ->
+    expect =>
+      @account.create_order('USD', amt('10'), 'BTC', amt('1'))
+    .to.throw("Insufficient USD funds to place order")
 
+  it 'should be able to create an order with sufficient balance', ->
+    offer_amount = amt('10')
+    receipt_amount = amt('1')
+
+    @account.credit('USD', offer_amount)
+    order = @account.create_order('USD', offer_amount, 'BTC', receipt_amount)
+    order.should.be.an.instanceOf Order
+    order.account.should.equal @account
+    order.offered_currency.should.equal 'USD'
+    order.offered_amount.should.equal offer_amount
+    order.received_currency.should.equal 'BTC'
+    order.received_amount.should.equal receipt_amount
+
+    @account.get_balance('USD').toString().should.equal '0'
+    

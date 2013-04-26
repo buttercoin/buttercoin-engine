@@ -81,6 +81,7 @@ global.test =
       try
         owner[key] = require("../lib/#{filename}")
       catch e
+        console.log "warn: couldn't load ../lib/#{filename} for #{r}"
         # Only raise if there isn't a helper module with this name
         unless global.test.module_helpers[r]
           throw e

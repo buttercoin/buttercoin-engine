@@ -23,3 +23,4 @@ module.exports = class SuperMarket
 
   route_order: (order) =>
     @get_market('USD', 'BTC').add_order(order)
+
