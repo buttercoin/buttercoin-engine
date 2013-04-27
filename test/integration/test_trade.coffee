@@ -37,3 +37,4 @@ describe 'TradeEngine', ->
       .then =>
         finish()
     .done()
+
