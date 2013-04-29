@@ -1,6 +1,6 @@
 Tempfile = require('temporary/lib/file')
 
-PCE = require('../lib/processingchainentrance')
+PCE = require('../lib/pce')
 Journal = require('../lib/journal')
 TradeEngine = require('../lib/trade_engine')
 

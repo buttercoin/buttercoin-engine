@@ -1,4 +1,4 @@
-ProcessingChainEntrance = require('../lib/processingchainentrance')
+ProcessingChainEntrance = require('../lib/pce')
 TradeEngine = require('../lib/trade_engine')
 Journal = require('../lib/journal')
 

@@ -2,16 +2,16 @@ Q = require 'q'
 DataStore = require './datastore/datastore'
 Operations = require './operations'
 
-logger = require('../lib/logger')
+stump = require('stump')
 
 module.exports = class ProcessingChainEntrance
   constructor: (@engine, @journal, @replication) ->
 
   start: =>
-    #logger.info("Starting PCE")
+    stump.info("Starting PCE")
     Q.all [
       @journal.start(@forward_operation).then =>
-        # console.log 'INITIALIZED/REPLAYED LOG'
+        stump.info 'INITIALIZED/REPLAYED LOG'
         null
       @replication.start() ]
 

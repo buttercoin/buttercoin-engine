@@ -1,6 +1,6 @@
-test.uses "TradeEngine",
+test.uses "trade_engine",
           "Journal",
-          "ProcessingChainEntrance",
+          "pce",
           "operations",
           "logger"
 
