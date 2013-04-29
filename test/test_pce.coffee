@@ -7,7 +7,7 @@ kTestFilename = 'test.log'
 describe 'ProcessingChainEntrance', ->
   setup_mocking()
 
-  beforeEach (done) ->
+  beforeEach ->
     @journal = new Journal(kTestFilename)
     @replication = {start: (->), send: (->)}
     @engine = new TradeEngine()
@@ -17,7 +17,6 @@ describe 'ProcessingChainEntrance', ->
     @mockify 'engine'
 
     @pce = new ProcessingChainEntrance(@engine, @journal, @replication)
-    done()
 
   it 'should intialize the transaction log and replication when starting', (done) ->
     @_journal.expects('start').once().returns(then: ->)

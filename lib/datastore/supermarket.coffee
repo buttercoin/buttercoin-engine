@@ -7,7 +7,7 @@ module.exports = class SuperMarket
   get_market: (offered_currency, received_currency) =>
 
     if offered_currency == received_currency
-      throw Error("Currencies the same")
+      throw Error("#{offered_currency}|#{received_currency} is not a valid market")
 
     if offered_currency < received_currency
       canonical_pair =  [offered_currency, received_currency]
@@ -20,3 +20,7 @@ module.exports = class SuperMarket
     if not (market instanceof Market)
       @markets[canonical_pair_string] = market = new Market( canonical_pair[0], canonical_pair[1] )
     return market
+
+  route_order: (order) =>
+    @get_market('USD', 'BTC').add_order(order)
+

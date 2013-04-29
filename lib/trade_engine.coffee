@@ -9,10 +9,9 @@ module.exports = class TradeEngine
     @datastore = new DataStore
 
   execute_operation: (op) ->
-    # Makes calls into datastore and then handles callbacks for operation.
+    # Makes calls into datastore
     if op.kind == operations.ADD_DEPOSIT
-      return "foo"
-      #return @datastore.add_deposit( op )
+      return @datastore.deposit( op )
     else
       throw Error("Unknown Operation" + JSON.stringify(op))
 

@@ -62,3 +62,59 @@ global.logResults = (results) ->
       displayOpened(x.order || x.residual_order)
     if x.kind is 'order_filled' or x.kind is 'order_partially_filled'
       displaySold(x.order || x.filled_order)
+
+ensureKeys = (obj, parts) ->
+  return obj if parts.length <= 1
+
+  cur = parts.shift()
+  obj[cur] ||= {}
+  ensureKeys(obj[cur], parts)
+
+global.test =
+  uses: (resource...) ->
+    resource.forEach (r) ->
+      parts = r.split('.')
+      filename = parts.map((p) -> p.toLowerCase()).join('/')
+
+      owner = ensureKeys(global, parts)
+      key = parts[parts.length - 1]
+      try
+        owner[key] = require("../lib/#{filename}")
+      catch e
+        console.log "warn: couldn't load ../lib/#{filename} for #{r}"
+        # Only raise if there isn't a helper module with this name
+        unless global.test.module_helpers[r]
+          throw e
+      finally
+        global.test.module_helpers[r]?()
+
+global.test.module_helpers =
+  'Datastore.Amount': ->
+    global.Amount = global.Datastore.Amount
+    global.amt = (x) ->
+      new global.Datastore.Amount(x.toString())
+
+  'Datastore.Account': ->
+    global.Account = global.Datastore.Account
+
+  'Datastore.DataStore': ->
+    global.DataStore = global.Datastore.DataStore
+
+  'Datastore.BalanceSheet': ->
+    global.BalanceSheet = global.Datastore.BalanceSheet
+
+  'Datastore.SuperMarket': ->
+    global.SuperMarket = global.Datastore.SuperMarket
+
+  'Datastore.Market': ->
+    global.Market = global.Datastore.Market
+
+  'Datastore.Order': ->
+    global.Order = global.Datastore.Order
+
+  'TradeEngine': ->
+    global.TradeEngine = require("../lib/trade_engine")
+
+  #'Journal': ->
+  #  kJournalFile = 'test.log'
+  #  TODO - before/after cleanup log files

@@ -1,7 +1,7 @@
 BigDecimal = require('bigdecimal').BigDecimal
 
 module.exports = class Amount
-	constructor: (string_value) ->
+  constructor: (string_value) ->
     if typeof string_value == 'undefined'
       string_value = '0'
 
