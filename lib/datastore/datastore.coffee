@@ -15,7 +15,7 @@ isNumber = (s) ->
   return typeof(s) == 'number' || s instanceof Number
 
 module.exports = class DataStore
-  constructor: (@balancesheet, @supermarket) ->
+  constructor: (@balancesheet=(new BalanceSheet()), @supermarket=(new SuperMarket())) ->
 
   deposit: (args) =>
     #if not isString(args.account)
