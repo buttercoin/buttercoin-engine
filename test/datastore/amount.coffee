@@ -1,7 +1,7 @@
 Amount = require('../../lib/datastore/amount')
 
 describe 'Amount', ->
-  describe '#compareTo', ->
+  describe '.compareTo', ->
     it 'cannot be called with Javascript Numbers as they are inherently innacurate', ->
       amount = new Amount('0')
       expect ->
@@ -38,7 +38,7 @@ describe 'Amount', ->
       amount = new Amount('This is not a number')
     .to.throw('String initializer cannot be parsed to a number')
 
-  describe '#add', ->
+  describe '.add', ->
     it 'cannot be called with Javascript Numbers as they are inherently innacurate', ->
       amount = new Amount()
       expect ->
@@ -63,7 +63,7 @@ describe 'Amount', ->
       amountSum = amountPoint1.add(amountPoint2)
       amountSum.compareTo(amountPoint3).should.equal(0, 'Sum should be correct')
 
-  describe '#subtract', ->
+  describe '.subtract', ->
     it 'cannot be called with Javascript Numbers as they are inherently innacurate', ->
       amount = new Amount()
       expect ->
@@ -81,7 +81,7 @@ describe 'Amount', ->
       amount3.compareTo(anotherAmount3).should.equal(0, 'First amount should not change')
       amount4.compareTo(anotherAmount4).should.equal(0, 'Second amount should not change')
 
-  describe '#toString', ->
+  describe '.toString', ->
     it 'should return a string representation of the amount', ->
       amount = new Amount('3.14')
       amount.toString().should.equal('3.14')
