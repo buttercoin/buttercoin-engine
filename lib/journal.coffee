@@ -101,6 +101,8 @@ module.exports = class Journal
     return deferred.promise
 
   record: (message) =>
+    # XXX: make sure previous write finishes before starting next
+    
     # console.log 'RECORDING', message
     if @writefd == null
       # console.log 'NO WRITEFD AVAILABLE'

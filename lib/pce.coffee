@@ -17,8 +17,12 @@ module.exports = class ProcessingChainEntrance
 
   forward_operation: (operation) =>
     message = JSON.stringify(operation)
-    Q.all([
+    retval = @engine.execute_operation(operation)
+
+    return Q.all([
       @journal.record(message)
       @replication.send(message)
-    ]).then(=> Q @engine.execute_operation(operation))
+    ]).then =>
+      stump.info('FORWARD DONING', retval.toString() )
+      return retval
 
