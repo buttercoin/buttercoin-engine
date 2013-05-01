@@ -6,12 +6,13 @@ stump = require('stump')
 
 module.exports = class ProcessingChainEntrance
   constructor: (@engine, @journal, @replication) ->
+    stump.stumpify(@, @constructor.name)
 
   start: =>
-    stump.info("Starting PCE")
+    @info("Starting PCE")
     Q.all [
       @journal.start(@forward_operation).then =>
-        stump.info 'INITIALIZED/REPLAYED LOG'
+        @info 'INITIALIZED/REPLAYED LOG'
         null
       @replication.start() ]
 
@@ -23,6 +24,6 @@ module.exports = class ProcessingChainEntrance
       @journal.record(message)
       @replication.send(message)
     ]).then =>
-      stump.info('FORWARD DONING', retval.toString() )
+      @info('FORWARD DONING', retval.toString() )
       return retval
 
