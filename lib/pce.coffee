@@ -25,5 +25,9 @@ module.exports = class ProcessingChainEntrance
       @replication.send(message)
     ]).then =>
       @info('FORWARD DONING', retval.toString() )
-      return retval
+      packet = {
+        operation: operation
+        retval: retval.toString()
+      }
+      return packet
 
