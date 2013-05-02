@@ -11,6 +11,12 @@ Order = require('../lib/datastore/order')
 fs = require('fs')
 
 chai.use (_chai, utils) ->
+  chai.Assertion.addMethod 'equal_amount', (amt) ->
+    obj = utils.flag(this, 'object')
+    this.assert obj.compareTo(amt) is 0,
+                "Expected #{obj} to equal #{amt}",
+                "Expected #{obj} not to equal #{amt}"
+
   chai.Assertion.addMethod 'succeed_with', (kind) ->
     obj = utils.flag(this, 'object')
     this.assert obj.status is 'success',
@@ -92,7 +98,7 @@ global.test.module_helpers =
   'Datastore.Amount': ->
     global.Amount = global.Datastore.Amount
     global.amt = (x) ->
-      new global.Datastore.Amount(x.toString())
+      new global.Datastore.Amount(x?.toString())
 
   'Datastore.Account': ->
     global.Account = global.Datastore.Account
