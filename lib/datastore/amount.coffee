@@ -37,3 +37,6 @@ module.exports = class Amount
 
   toString: =>
     return @value.toString()
+
+  clone: =>
+    return @add(new Amount())

@@ -85,3 +85,16 @@ describe 'Amount', ->
     it 'should return a string representation of the amount', ->
       amount = new Amount('3.14')
       amount.toString().should.equal('3.14')
+
+  describe '.clone', ->
+    beforeEach ->
+      @amount = new Amount(Math.random().toString())
+
+    it 'should return an equivalent amount', ->
+      copy = @amount.clone()
+      copy.should.equal_amount(@amount)
+
+    it 'should not update the original when the copy changes', ->
+      copy = @amount.clone()
+      copy.value = copy.value.add(copy.value)
+      copy.should.not.equal_amount(@amount)
