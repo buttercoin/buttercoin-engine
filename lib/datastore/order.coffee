@@ -2,8 +2,8 @@ Amount = require('./amount')
 
 module.exports = class Order
   constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount) ->
-    assert(@offered_amount.constructor is Amount, "offered amount must be an Amount object")
-    assert(@received_amount.constructor is Amount, "received amount must be an Amount object")
+    throw new Error("offered amount must be an Amount object") unless @offered_amount.constructor is Amount
+    throw new Error("received amount must be an Amount object") unless @received_amount.constructor is Amount
     @price = new Amount(@offered_amount.divide(@received_amount).toString())
 
   clone: (reversed=false) =>

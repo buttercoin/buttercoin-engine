@@ -1,6 +1,7 @@
 hd = require('heapdump')
 Market = require('../lib/datastore/market')
 Order = require ('../lib/datastore/order')
+Amount = require('../lib/datastore/amount')
 DQ = require('deque')
 
 randomInt = (lower, upper) ->
@@ -13,12 +14,20 @@ acctID = 1
 makeRandomOrder = ->
   currencies = ['BTC', 'USD']
   currencies = currencies.reverse() if randomBool()
-  new Order({name: "user-#{acctID++}"}, currencies[0], randomInt(1, 5000), currencies[1], randomInt(1, 5000))
+  new Order({name: "user-#{acctID++}"},
+             currencies[0],
+             new Amount(randomInt(1, 5000).toString()),
+             currencies[1],
+             new Amount(randomInt(1, 5000).toString()))
 
 makeMatchingOrder = (n) ->
   currencies = if (n % 5) then ['BTC', 'USD'] else ['USD', 'BTC']
-  amt = if (n % 5) then 0.25 else 1
-  new Order({name: "user-#{acctID++}"}, currencies[0], amt, currencies[1], amt)
+  amt = if (n % 5) then 25 else 100
+  new Order({name: "user-#{acctID++}"},
+             currencies[0],
+             new Amount(amt.toString()),
+             currencies[1],
+             new Amount(amt.toString()))
 
 mixAndMatch = (n) ->
   if (n % 10) >= 5
