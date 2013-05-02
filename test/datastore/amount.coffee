@@ -90,6 +90,8 @@ describe 'Amount', ->
     beforeEach ->
       @amount = amt Math.random()
 
+    afterEach -> delete @amount
+
     it 'should return an equivalent amount', ->
       copy = @amount.clone()
       copy.should.equal_amount(@amount)
@@ -98,3 +100,23 @@ describe 'Amount', ->
       copy = @amount.clone()
       copy.value = copy.value.add(copy.value)
       copy.should.not.equal_amount(@amount)
+
+  describe '.inverse', ->
+    it 'should be able to invert a non-zero value', ->
+      n = Math.floor(Math.random() * 100) + 1
+      amount = amt(n.toString())
+      inv = amount.inverse()
+      
+      inv.should.not.equal_amount amount
+      inv.toString().should.equal (1/n).toString()
+
+    it 'should fail when trying to invert zero', ->
+      expect =>
+        amt(0).inverse()
+      .to.throw "Denominator cannot be 0."
+
+    it 'should be reversable', ->
+      [1:10000].forEach ->
+        amount = amt(Math.random() * 1000000)
+        amount.inverse().inverse().should.equal_amount amount
+
