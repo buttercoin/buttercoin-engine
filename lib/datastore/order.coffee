@@ -1,6 +1,10 @@
+Amount = require('./amount')
+
 module.exports = class Order
   constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount) ->
-    @price = @offered_amount / @received_amount
+    assert(@offered_amount.constructor is Amount, "offered amount must be an Amount object")
+    assert(@received_amount.constructor is Amount, "received amount must be an Amount object")
+    @price = new Amount(@offered_amount.divide(@received_amount).toString())
 
   clone: (reversed=false) =>
     new Order(
@@ -11,8 +15,7 @@ module.exports = class Order
       if reversed then @offered_amount    else @received_amount)
 
   split: (amount) ->
-    # TODO - use amount type
-    r_amount = (@received_amount/@offered_amount)*amount
+    r_amount = @received_amount.divide(@offered_amount).multiply(amount)
 
     filled = new Order(
       @account,
@@ -21,7 +24,7 @@ module.exports = class Order
 
     remaining = new Order(
       @account,
-      @offered_currency, @offered_amount - amount,
-      @received_currency, @received_amount - r_amount)
+      @offered_currency, @offered_amount.subtract(amount),
+      @received_currency, @received_amount.subtract(r_amount))
 
     return [filled, remaining]

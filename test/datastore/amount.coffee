@@ -23,6 +23,14 @@ describe 'Amount', ->
       amount2 = new Amount('0')
       amount1.compareTo(amount2).should.equal(1)
 
+  describe 'comparison helpers', ->
+    xit 'lt should work'
+    xit 'lte should work'
+    xit 'eq should work'
+    xit 'ne should work'
+    xit 'gt should work'
+    xit 'gte should work'
+
   it 'should default to zero if no initializer is specified', ->
     amountUnspecified = new Amount()
     amountZero = new Amount('0')
@@ -80,6 +88,12 @@ describe 'Amount', ->
       amountDifference.compareTo(amountMinus1).should.equal(0, 'Difference should be correct')
       amount3.compareTo(anotherAmount3).should.equal(0, 'First amount should not change')
       amount4.compareTo(anotherAmount4).should.equal(0, 'Second amount should not change')
+
+  describe '.divide', ->
+    xit 'should return a new Amount which is the result of the division'
+
+  describe '.multiply', ->
+    xit 'should return a new Amount which is the result of the multiplication'
 
   describe '.toString', ->
     it 'should return a string representation of the amount', ->

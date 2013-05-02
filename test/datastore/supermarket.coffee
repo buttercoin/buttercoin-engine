@@ -15,7 +15,7 @@ describe 'SuperMarket', ->
     Object.keys(@supermarket.markets).should.be.empty
 
   it 'should be able to route an order to the appropriate market', ->
-    order = new Order('USD', amt('10'), 'BTC', amt('1'))
+    order = new Order({acct: 'fake'}, 'USD', amt('10'), 'BTC', amt('1'))
     market = @mockify new Market('BTC', 'USD')
 
     @_supermarket.expects('get_market').once().withArgs('USD', 'BTC').returns(market.object)

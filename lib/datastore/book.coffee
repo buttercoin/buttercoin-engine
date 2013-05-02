@@ -1,6 +1,7 @@
 DQ = require ('deque')
 redblack = require('redblack')
 Order = require('./order')
+Amount = require('./amount')
 
 joinQueues = (front, back, withCb) ->
   withCb ||= (x) -> x
@@ -28,7 +29,8 @@ mkPartialOrder = (original_order, filled, remaining) -> {
 # Once a suitable backend is found, this class should be considered for removal
 class BookStore
   constructor: ->
-    @tree = redblack.tree()
+    @tree = redblack.tree((left, right) ->
+      left.compareTo(right))
     @size = 0
 
   add_to_price_level: (price, order) =>
@@ -38,18 +40,18 @@ class BookStore
       dq = new DQ.Dequeue()
 
       level = {
-        size: 0
+        size: new Amount('0')
         orders: dq
       }
       @insert(price, level)
 
     level.orders.push(order)
-    level.size += order.offered_amount
+    level.size = level.size.add(order.offered_amount)
 
 
   # TODO - optimize this to allow for halting
   for_levels_above: (price, cb) =>
-    cursor = @tree.range(0, price)
+    cursor = @tree.range(new Amount('0'), price)
     running = true
     cursor.forEach (order_level, cur_price) =>
       running = cb(cur_price, order_level) if running
@@ -78,17 +80,17 @@ module.exports = class Book
 
     #cur = @store.head()
     closed = []
-    amount_filled = 0
-    amount_remaining = order.received_amount
-    amount_spent = 0
+    amount_filled = Amount.zero
+    amount_remaining = order.received_amount.clone()
+    amount_spent = Amount.zero
     results = new DQ.Dequeue()
 
     @store.for_levels_above order.price, (price, order_level) =>
       # close the whole price level if we can
-      if order_level.size <= amount_remaining
-        amount_filled += order_level.size
-        amount_remaining -= order_level.size
-        amount_spent += order_level.size * price
+      if order_level.size.lte(amount_remaining)
+        amount_filled = amount_filled.add(order_level.size)
+        amount_remaining = amount_remaining.subtract(order_level.size)
+        amount_spent = amount_spent.add(order_level.size.multiply(price))
 
         # queue the entire price level to be closed
         closed.push({price: price, order_level: order_level})
@@ -96,12 +98,12 @@ module.exports = class Book
       else
         # consume all orders we can at this price level, starting with the oldest
         cur_order = order_level.orders.shift()
-        while cur_order?.offered_amount <= amount_remaining
-          amount_filled += cur_order.offered_amount
-          amount_remaining -= cur_order.offered_amount
-          amount_spent += cur_order.offered_amount * price
+        while cur_order?.offered_amount.lte(amount_remaining)
+          amount_filled = amount_filled.add(cur_order.offered_amount)
+          amount_remaining = amount_remaining.subtract(cur_order.offered_amount)
+          amount_spent = amount_spent.add(cur_order.offered_amount.multiply(price))
 
-          order_level.size -= cur_order.offered_amount
+          order_level.size = order_level.size.subtract(cur_order.offered_amount)
           results.push mkCloseOrder(cur_order)
           
           # there must always be another order here or else we would have consumed
@@ -110,16 +112,16 @@ module.exports = class Book
           # if there isn't we have a major problem
           cur_order = order_level.orders.shift()
         
-        if amount_remaining == 0
+        if amount_remaining.eq(Amount.zero)
           # if we're done, put the cur_order back into the price level
           order_level.orders.unshift(cur_order)
-        else if cur_order?.offered_amount > 0
+        else if cur_order?.offered_amount.gt(Amount.zero)
           # diminish next order by remaining amount
           [filled, remaining] = cur_order.split(amount_remaining)
-          order_level.size -= amount_remaining
-          amount_filled += amount_remaining
-          amount_spent += amount_remaining * price
-          amount_remaining = 0
+          order_level.size = order_level.size.subtract(amount_remaining)
+          amount_filled = amount_filled.add(amount_remaining)
+          amount_spent = amount_spent.add(amount_remaining.multiply(price))
+          amount_remaining = Amount.zero
 
           # push the partially filled order back to the front of the queue
           order_level.orders.unshift(remaining)
@@ -133,10 +135,10 @@ module.exports = class Book
       @store.delete(x.price)
 
     order.offered_amount = amount_spent
-    order.price = order.offered_amount / order.received_amount
-    if amount_remaining == 0
+    order.price = order.offered_amount.divide(order.received_amount)
+    if amount_remaining.is_zero()
       results.push mkCloseOrder(order)
-    else if amount_filled == 0
+    else if amount_filled.is_zero()
       results.push {
         status: 'success'
         kind:   'not_filled'
@@ -151,9 +153,9 @@ module.exports = class Book
                         amount_filled)
       remaining = new Order(order.account,
                             order.offered_currency,
-                            (1/orig_order.price) * amount_remaining,
+                            orig_order.price.inverse().multiply(amount_remaining),
                             order.received_currency,
-                            orig_order.received_amount - amount_filled)
+                            orig_order.received_amount.subtract(amount_filled))
       results.push mkPartialOrder(orig_order, filled, remaining)
 
     return results

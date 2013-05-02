@@ -1,9 +1,20 @@
-Order = require('../../lib/datastore/order')
+test.uses 'Datastore.Order',
+          'Datastore.Amount'
 
 describe 'Order', ->
   beforeEach ->
     @account = {}
-    @order = new Order({}, 'USD', 1, 'BTC', 10)
+    @order = new Order({}, 'USD', amt('1'), 'BTC', amt('10'))
+
+  it 'should only be constructed with amounts', ->
+    expect ->
+      new Order({}, 'USD', 1, 'BTC', amt('10'))
+    .to.throw "offered amount must be an Amount object"
+
+    expect ->
+      new Order({}, 'USD', amt('1'), 'BTC', 10)
+    .to.throw "received amount must be an Amount object"
+
 
   it 'should be clonable', ->
     @order.clone.should.exist

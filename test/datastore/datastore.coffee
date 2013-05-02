@@ -46,7 +46,7 @@ describe 'DataStore', ->
       account = @mockify(new Account())
       offer_amount = amt '10'
       receipt_amount = amt '1'
-      created_order = new Order('USD', offer_amount, 'BTC', receipt_amount)
+      created_order = new Order(account.object, 'USD', offer_amount, 'BTC', receipt_amount)
 
       @balancesheet.expects('get_account').once().withArgs(account_name).returns(account.object)
       account.expects('create_order').once().withArgs('USD', offer_amount, 'BTC', receipt_amount).returns(created_order)

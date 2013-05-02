@@ -7,13 +7,14 @@ chai.should()
 global.logger = require('../lib/logger')
 global.Q = require('q')
 Order = require('../lib/datastore/order')
+Amount = require('../lib/datastore/amount')
 
 fs = require('fs')
 
 chai.use (_chai, utils) ->
   chai.Assertion.addMethod 'equal_amount', (amt) ->
     obj = utils.flag(this, 'object')
-    this.assert obj.compareTo(amt) is 0,
+    this.assert obj.eq(amt),
                 "Expected #{obj} to equal #{amt}",
                 "Expected #{obj} not to equal #{amt}"
 
@@ -52,10 +53,10 @@ class TestHelper
 global.TestHelper = TestHelper
 
 global.buyBTC = (acct, numBtc, numDollars) ->
-  new Order(acct, 'USD', numDollars, 'BTC', numBtc)
+  new Order(acct, 'USD', new Amount(numDollars.toString()), 'BTC', new Amount(numBtc.toString()))
 
 global.sellBTC = (acct, numBtc, numDollars) ->
-  new Order(acct, 'BTC', numBtc, 'USD', numDollars)
+  new Order(acct, 'BTC', new Amount(numBtc.toString()), 'USD', new Amount(numDollars.toString()))
 
 global.logResults = (results) ->
   displaySold = (x) ->
@@ -114,6 +115,9 @@ global.test.module_helpers =
 
   'Datastore.Market': ->
     global.Market = global.Datastore.Market
+
+  'Datastore.Book': ->
+    global.Book = global.Datastore.Book
 
   'Datastore.Order': ->
     global.Order = global.Datastore.Order

@@ -7,13 +7,13 @@ brToNumber = (x) ->
 bdOne = new BigRational('1')
 
 module.exports = class Amount
-  constructor: (string_value) ->
-    if typeof string_value == 'undefined'
-      string_value = '0'
+  constructor: (value) ->
+    if typeof value == 'undefined'
+      value = '0'
 
-    if typeof string_value == 'string'
+    if typeof value == 'string'
       try
-        @value = new BigRational(string_value)
+        @value = new BigRational(value)
       catch e
         throw new Error('String initializer cannot be parsed to a number')
     else
@@ -24,6 +24,11 @@ module.exports = class Amount
       return @value.compare(amount.value)
     else
       throw new Error('Can only compare to Amount objects')
+
+  lte: (amount) => @compareTo(amount) <= 0
+  gt: (amount) => @compareTo(amount) > 0
+  eq: (amount) => @compareTo(amount) == 0
+  is_zero: => @eq(Amount.zero)
 
   add: (amount) =>
     if amount instanceof Amount
@@ -41,6 +46,22 @@ module.exports = class Amount
     else
       throw new Error('Can only subtract Amount objects')
 
+  divide: (amount) =>
+    if amount instanceof Amount
+      result = new Amount()
+      result.value = @value.divide(amount.value)
+      return result
+    else
+      throw new Error('Can only divide Amount objects')
+
+  multiply: (amount) =>
+    if amount instanceof Amount
+      result = new Amount()
+      result.value = @value.multiply(amount.value)
+      return result
+    else
+      throw new Error('Can only divide Amount objects')
+
   toString: =>
     return brToNumber(@value).toString()
 
@@ -51,3 +72,5 @@ module.exports = class Amount
     result = new Amount()
     result.value = bdOne.divide(@value)
     return result
+
+Amount.zero = new Amount('0')
