@@ -1,4 +1,4 @@
-Amount = require('../../lib/datastore/amount')
+test.uses 'Datastore.Amount'
 
 describe 'Amount', ->
   describe '.compareTo', ->
@@ -88,7 +88,7 @@ describe 'Amount', ->
 
   describe '.clone', ->
     beforeEach ->
-      @amount = new Amount(Math.random().toString())
+      @amount = amt Math.random()
 
     it 'should return an equivalent amount', ->
       copy = @amount.clone()

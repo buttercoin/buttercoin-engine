@@ -14,12 +14,10 @@ module.exports = class Account
   constructor: ->
     @balances = {}
 
-  get_balance: (currency, unsafe=false) =>
+  get_balance: (currency) =>
     @assert_valid_currency(currency)
-
-    @balances[currency] || new Amount('0')
-    #@balances[currency].clone()
-
+    @balances[currency]?.clone() || new Amount('0')
+  
   credit: (currency, amount) =>
     balance = @get_balance(currency)
     @balances[currency] = balance.add(amount)

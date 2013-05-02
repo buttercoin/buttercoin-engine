@@ -22,7 +22,13 @@ describe 'Account', ->
       @account.credit('fake', amt(1))
     .to.throw('fake is not a supported currency')
 
-  xit 'should return a copy of a balance value'
+  it 'should return a copy of a balance value', ->
+    amount = amt Math.random()
+    @account.credit('USD', amount)
+    bal = @account.get_balance('USD')
+
+    bal.should.equal_amount amount
+    bal.should.not.equal @account.balances.USD
 
   it 'should be able to credit a balance', ->
     amount = '3.141596281203071307479289982375230237197499234'
@@ -53,4 +59,4 @@ describe 'Account', ->
     order.received_amount.should.equal receipt_amount
 
     @account.get_balance('USD').toString().should.equal '0'
-    
+
