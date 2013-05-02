@@ -36,22 +36,14 @@ describe 'ProcessingChainEntrance', ->
     @_engine.expects('execute_operation').once().withArgs(operation).returns("success")
 
     onComplete = (result) ->
-      result.should.equal "success"
+      result.retval.should.equal "success"
+      result.operation.should.equal operation
       done()
 
     @pce.forward_operation(operation).then(onComplete).done()
 
-  it 'should report an error when the exectution fails', (done) ->
-    deferred = Q.defer()
-    deferred.resolve(undefined)
-
-    @_journal.expects('record').once().returns(deferred.promise)
-    @_replication.expects('send').once().returns(deferred.promise)
-    @_engine.expects('execute_operation').once().throws("failure")
-
-    onError = (error) ->
-      error.name.should.equal "failure"
-      done()
-
-    @pce.forward_operation(null).fail(onError).done()
-
+  it 'should throw an error immediately when the execution fails', (done) ->
+    expect =>
+      @pce.forward_operation(null).done()
+    .to.throw "Invalid Operation"
+    done()
