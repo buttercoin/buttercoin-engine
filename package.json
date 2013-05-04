@@ -20,7 +20,7 @@
     "q": "*",
     "q-io": "*",
     "eemitterport": "*",
-    "big-rational": "*",
+    "bignum": "0.6.0",
     "deque": "*",
     "redblack": "*",
     "jspack": "*",

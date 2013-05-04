@@ -44,6 +44,7 @@ describe 'Amount', ->
   it 'must be initialized with something that can be parsed to a number', ->
     expect ->
       amount = new Amount('This is not a number')
+      console.log(amount.toString())
     .to.throw('String initializer cannot be parsed to a number')
 
   describe '.add', ->

@@ -1,10 +1,12 @@
 #BigDecimal = require('bigdecimal').BigDecimal
-BigRational = require('big-rational')
+#BigRational = require('big-rational')
 
-brToNumber = (x) ->
-  x.num.valueOf() / x.denom.valueOf()
+#brToNumber = (x) ->
+  #x.num.valueOf() / x.denom.valueOf()
 
-bdOne = new BigRational('1')
+#bdOne = new BigRational('1')
+
+bignum = require('bignum')
 
 module.exports = class Amount
   constructor: (value) ->
@@ -12,8 +14,10 @@ module.exports = class Amount
       value = '0'
 
     if typeof value == 'string'
+      if isNaN(value)
+        throw new Error('String initializer cannot be parsed to a number')
       try
-        @value = new BigRational(value)
+        @value = new bignum(value)
       catch e
         throw new Error('String initializer cannot be parsed to a number')
     else
@@ -21,13 +25,13 @@ module.exports = class Amount
 
   compareTo: (amount) =>
     if amount instanceof Amount
-      return @value.compare(amount.value)
+      return @value.cmp(amount.value)
     else
       throw new Error('Can only compare to Amount objects')
 
-  lte: (amount) => @compareTo(amount) <= 0
-  gt: (amount) => @compareTo(amount) > 0
-  eq: (amount) => @compareTo(amount) == 0
+  lte: (amount) => @value.le(amount)
+  gt: (amount) => @value.gt(amount)
+  eq: (amount) => @value.eq(amount)
   is_zero: => @eq(Amount.zero)
 
   add: (amount) =>
@@ -41,7 +45,7 @@ module.exports = class Amount
   subtract: (amount) =>
     if amount instanceof Amount
       difference = new Amount()
-      difference.value = @value.subtract(amount.value)
+      difference.value = @value.sub(amount.value)
       return difference
     else
       throw new Error('Can only subtract Amount objects')
@@ -63,7 +67,7 @@ module.exports = class Amount
       throw new Error('Can only divide Amount objects')
 
   toString: =>
-    return brToNumber(@value).toString()
+    return @value.toString() #brToNumber(@value).toString()
 
   clone: =>
     return @add(new Amount())
