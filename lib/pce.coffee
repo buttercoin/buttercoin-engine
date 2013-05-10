@@ -21,6 +21,9 @@ module.exports = class ProcessingChainEntrance
   forward_operation: (operation) =>
     if not operation
       throw Error("No Operation supplied")
+    if operation.serial
+      if operation.serial != global_operation_serial
+        throw Error("Serial Number " + operation.serial + " != " + global_operation_serial)
     operation.serial = global_operation_serial
     global_operation_serial += 1
     message = JSON.stringify(operation)
