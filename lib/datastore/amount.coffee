@@ -53,7 +53,7 @@ module.exports = class Amount
   divide: (amount) =>
     if amount instanceof Amount
       result = new Amount()
-      result.value = @value.divide(amount.value)
+      result.value = @value.div(amount.value)
       return result
     else
       throw new Error('Can only divide Amount objects')
@@ -61,7 +61,7 @@ module.exports = class Amount
   multiply: (amount) =>
     if amount instanceof Amount
       result = new Amount()
-      result.value = @value.multiply(amount.value)
+      result.value = @value.mul(amount.value)
       return result
     else
       throw new Error('Can only divide Amount objects')
@@ -78,3 +78,4 @@ module.exports = class Amount
     return result
 
 Amount.zero = new Amount('0')
+Amount.one = new Amount('1')

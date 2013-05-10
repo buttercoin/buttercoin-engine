@@ -18,6 +18,12 @@ chai.use (_chai, utils) ->
                 "Expected #{obj} to equal #{amt}",
                 "Expected #{obj} not to equal #{amt}"
 
+  chai.Assertion.addMethod 'equal_price', (price) ->
+    obj = utils.flag(this, 'object')
+    this.assert obj.eq(price),
+                "Expected #{obj} to equal #{price}",
+                "Expected #{obj} not to equal #{price}"
+
   chai.Assertion.addMethod 'succeed_with', (kind) ->
     obj = utils.flag(this, 'object')
     this.assert obj.status is 'success',
@@ -100,6 +106,9 @@ global.test.module_helpers =
     global.Amount = global.Datastore.Amount
     global.amt = (x) ->
       new global.Datastore.Amount(x?.toString())
+
+  'Datastore.Price': ->
+    global.Price = global.Datastore.Price
 
   'Datastore.Account': ->
     global.Account = global.Datastore.Account
