@@ -30,10 +30,12 @@ describe 'ProcessingChainEntrance', ->
     deferred.resolve(undefined)
 
     operation = {kind: "TEST"}
-    messageJson = JSON.stringify(operation)
-    @_journal.expects('record').once().withArgs(messageJson).returns(deferred.promise)
-    @_replication.expects('send').once().withArgs(messageJson).returns(deferred.promise)
-    @_engine.expects('execute_operation').once().withArgs(operation).returns("success")
+    operationResult = {kind: "TEST", serial: 0}
+    messageJsonResult = JSON.stringify(operationResult)
+
+    @_journal.expects('record').once().withArgs(messageJsonResult).returns(deferred.promise)
+    @_replication.expects('send').once().withArgs(messageJsonResult).returns(deferred.promise)
+    @_engine.expects('execute_operation').once().withArgs(operationResult).returns("success")
 
     onComplete = (result) ->
       result.retval.should.equal "success"
@@ -42,8 +44,14 @@ describe 'ProcessingChainEntrance', ->
 
     @pce.forward_operation(operation).then(onComplete).done()
 
-  it 'should throw an error immediately when the execution fails', (done) ->
+  it 'should throw an error immediately when operation is null', (done) ->
     expect =>
       @pce.forward_operation(null).done()
+    .to.throw "No Operation supplied"
+    done()
+
+  it 'should throw an error immediately when the execution fails', (done) ->
+    expect =>
+      @pce.forward_operation({'foo': 'bar'}).done()
     .to.throw "Invalid Operation"
     done()
