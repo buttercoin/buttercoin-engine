@@ -5,7 +5,7 @@ module.exports = class Order
   constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount) ->
     throw new Error("offered amount must be an Amount object") unless @offered_amount.constructor is Amount
     throw new Error("received amount must be an Amount object") unless @received_amount.constructor is Amount
-    @price = new Ratio(@offered_amount, @received_amount)
+    @price = Ratio.take(@offered_amount, @received_amount)
 
   clone: (reversed=false) =>
     new Order(
@@ -31,7 +31,9 @@ module.exports = class Order
     return [filled, remaining]
 
   free: =>
-    Account.put @offered_amount
-    Account.put @received_amount
-    @offered_amount = null
-    @received_amount = null
+    Amount.put @offered_amount
+    Amount.put @received_amount
+    Ratio.put @price
+    #@offered_amount = null
+    #@received_amount = null
+    #@price = null

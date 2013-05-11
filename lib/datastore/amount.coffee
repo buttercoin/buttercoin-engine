@@ -9,21 +9,29 @@
 bignum = require('bignum')
 DQ = require('deque')
 
-flyweight_pool = new DQ.Dequeue()
 
 module.exports = class Amount
+  flyweight_pool = new DQ.Dequeue()
+  @flyweight_pool = flyweight_pool
+  @num_allocated = 0
+  @num_took = 0
+  @num_put = 0
+
   @take: (value) =>
-    if flyweight_pool.isEmpty()
+    if @flyweight_pool.length is 0 #isEmpty()
       return new Amount(value)
     else
-      x = flyweight_pool.pop()
-      x.value = new bignum(value) if value
-      return x
+      @num_took += 1
+      x = @flyweight_pool.pop()
+      @init(x, value)
 
   @put: (amount) =>
-    flyweight_pool.push(amount)
+    #throw new Error("Invalid Amount: #{amount}") unless amount instanceof Amount
+    @num_put += 1
+    @flyweight_pool.push(amount)
 
-  constructor: (value) ->
+  @init: (amount, value) =>
+    Amount.num_allocated += 1
     if typeof value == 'undefined'
       value = '0'
 
@@ -31,11 +39,16 @@ module.exports = class Amount
       if isNaN(value)
         throw new Error('String initializer cannot be parsed to a number')
       try
-        @value = new bignum(value)
+        amount.value = new bignum(value)
       catch e
         throw new Error('String initializer cannot be parsed to a number')
     else
       throw new Error('Must intialize from string')
+
+    return amount
+
+  constructor: (value) ->
+    Amount.init(this, value)
 
   compareTo: (amount) =>
     if amount instanceof Amount
