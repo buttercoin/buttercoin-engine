@@ -18,32 +18,66 @@ describe 'ProcessingChainEntrance', ->
 
     @pce = new ProcessingChainEntrance(@engine, @journal, @replication)
 
-  it 'should intialize the transaction log and replication when starting', (done) ->
+  it 'should intialize the transaction log and replication when starting', (finish) ->
     @_journal.expects('start').once().returns(then: ->)
     @_replication.expects('start').once().returns(then: ->)
 
     @pce.start()
-    done()
+    finish()
 
-  it 'should log, replicate, and execute a messge upon receiving it', (done) ->
+  it 'should log, replicate, and execute a message upon receiving it', (finish) ->
     deferred = Q.defer()
     deferred.resolve(undefined)
 
     operation = {kind: "TEST"}
-    messageJson = JSON.stringify(operation)
-    @_journal.expects('record').once().withArgs(messageJson).returns(deferred.promise)
-    @_replication.expects('send').once().withArgs(messageJson).returns(deferred.promise)
-    @_engine.expects('execute_operation').once().withArgs(operation).returns("success")
+    operationResult = {kind: "TEST", serial: 0}
+    messageJsonResult = JSON.stringify(operationResult)
+
+    @_journal.expects('record').once().withArgs(messageJsonResult).returns(deferred.promise)
+    @_replication.expects('send').once().withArgs(messageJsonResult).returns(deferred.promise)
+    @_engine.expects('execute_operation').once().withArgs(operationResult).returns("success")
 
     onComplete = (result) ->
       result.retval.should.equal "success"
       result.operation.should.equal operation
-      done()
+      finish()
 
     @pce.forward_operation(operation).then(onComplete).done()
 
-  it 'should throw an error immediately when the execution fails', (done) ->
+  it 'should fail when encountering an out of order serial', (finish) ->
+    deferred = Q.defer()
+    deferred.resolve(undefined)
+
+    operation1 = {kind: "TEST"}
+    operationResult1 = {kind: "TEST", serial: 1}
+    messageJsonResult1 = JSON.stringify(operationResult1)
+
+    @_journal.expects('record').once().withArgs(messageJsonResult1).returns(deferred.promise)
+    @_replication.expects('send').once().withArgs(messageJsonResult1).returns(deferred.promise)
+    @_engine.expects('execute_operation').once().withArgs(operationResult1).returns("success")
+
+    operation5 = {kind: "TEST", serial: 5}
+
+    onComplete1 = (result) ->
+      result.retval.should.equal "success"
+      result.operation.should.equal operation1
+      true
+
+    @pce.forward_operation(operation1).then(onComplete1).then =>
+      expect =>
+        @pce.forward_operation(operation5)
+      .to.throw "Serial Number 5 != 2"
+      finish()
+    .done()
+
+  it 'should throw an error immediately when operation is null', (finish) ->
     expect =>
       @pce.forward_operation(null).done()
+    .to.throw "No Operation supplied"
+    finish()
+
+  it 'should throw an error immediately when the execution fails', (finish) ->
+    expect =>
+      @pce.forward_operation({'foo': 'bar'}).done()
     .to.throw "Invalid Operation"
-    done()
+    finish()

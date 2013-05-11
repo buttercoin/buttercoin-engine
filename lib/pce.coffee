@@ -4,6 +4,8 @@ Operations = require './operations'
 
 stump = require('stump')
 
+global_operation_serial = 0
+
 module.exports = class ProcessingChainEntrance
   constructor: (@engine, @journal, @replication) ->
     stump.stumpify(@, @constructor.name)
@@ -17,6 +19,13 @@ module.exports = class ProcessingChainEntrance
       @replication.start() ]
 
   forward_operation: (operation) =>
+    if not operation
+      throw Error("No Operation supplied")
+    if operation.serial
+      if operation.serial != global_operation_serial
+        throw Error("Serial Number " + operation.serial + " != " + global_operation_serial)
+    operation.serial = global_operation_serial
+    global_operation_serial += 1
     message = JSON.stringify(operation)
     retval = @engine.execute_operation(operation)
 
