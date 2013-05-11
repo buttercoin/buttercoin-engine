@@ -1,10 +1,11 @@
 Amount = require('./amount')
+Ratio = require('./ratio')
 
 module.exports = class Order
   constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount) ->
     throw new Error("offered amount must be an Amount object") unless @offered_amount.constructor is Amount
     throw new Error("received amount must be an Amount object") unless @received_amount.constructor is Amount
-    @price = new Amount(@offered_amount.divide(@received_amount).toString())
+    @price = new Ratio(@offered_amount, @received_amount)
 
   clone: (reversed=false) =>
     new Order(
@@ -14,7 +15,7 @@ module.exports = class Order
       if reversed then @offered_currency  else @received_currency,
       if reversed then @offered_amount    else @received_amount)
 
-  split: (amount) ->
+  split: (amount) =>
     r_amount = @received_amount.divide(@offered_amount).multiply(amount)
 
     filled = new Order(
@@ -28,3 +29,9 @@ module.exports = class Order
       @received_currency, @received_amount.subtract(r_amount))
 
     return [filled, remaining]
+
+  free: =>
+    Account.put @offered_amount
+    Account.put @received_amount
+    @offered_amount = null
+    @received_amount = null

@@ -1,6 +1,7 @@
 test.uses "Datastore.Amount",
           "Datastore.Book",
-          "Datastore.Order"
+          "Datastore.Order",
+          "Datastore.Ratio"
           
 sellBTC = (args...) ->
   order = global.sellBTC(args...)
@@ -34,7 +35,7 @@ describe 'Book', ->
     # TODO sizes and prices should be inverse of one another?
     expectedSizes = [20, 11].map amt
     @book.store.forEach (order_level, price) ->
-      price.should.equal_amount expectedLevels.shift()
+      price.should.equal_ratio expectedLevels.shift()
       order_level.size.should.equal_amount expectedSizes.shift()
 
       until order_level.orders.isEmpty()

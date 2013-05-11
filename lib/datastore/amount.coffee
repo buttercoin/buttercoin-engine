@@ -7,8 +7,22 @@
 #bdOne = new BigRational('1')
 
 bignum = require('bignum')
+DQ = require('deque')
+
+flyweight_pool = new DQ.Dequeue()
 
 module.exports = class Amount
+  @take: (value) =>
+    if flyweight_pool.isEmpty()
+      return new Amount(value)
+    else
+      x = flyweight_pool.pop()
+      x.value = new bignum(value) if value
+      return x
+
+  @put: (amount) =>
+    flyweight_pool.push(amount)
+
   constructor: (value) ->
     if typeof value == 'undefined'
       value = '0'
@@ -36,7 +50,7 @@ module.exports = class Amount
 
   add: (amount) =>
     if amount instanceof Amount
-      sum = new Amount()
+      sum = Amount.take()
       sum.value = @value.add(amount.value)
       return sum
     else
@@ -44,7 +58,7 @@ module.exports = class Amount
 
   subtract: (amount) =>
     if amount instanceof Amount
-      difference = new Amount()
+      difference = Amount.take()
       difference.value = @value.sub(amount.value)
       return difference
     else
@@ -52,7 +66,7 @@ module.exports = class Amount
 
   divide: (amount) =>
     if amount instanceof Amount
-      result = new Amount()
+      result = Amount.take()
       result.value = @value.div(amount.value)
       return result
     else
@@ -60,8 +74,16 @@ module.exports = class Amount
 
   multiply: (amount) =>
     if amount instanceof Amount
-      result = new Amount()
+      result = Amount.take()
       result.value = @value.mul(amount.value)
+      return result
+    else
+      throw new Error('Can only multiply Amount objects')
+
+  mod: (amount) =>
+    if amount instanceof Amount
+      result = Amount.take()
+      result.value = @value.mod(amount.value)
       return result
     else
       throw new Error('Can only divide Amount objects')
@@ -70,11 +92,8 @@ module.exports = class Amount
     return @value.toString() #brToNumber(@value).toString()
 
   clone: =>
-    return @add(new Amount())
-
-  inverse: =>
-    result = new Amount()
-    result.value = bdOne.divide(@value)
+    result = Amount.take()
+    result.value = @value
     return result
 
 Amount.zero = new Amount('0')

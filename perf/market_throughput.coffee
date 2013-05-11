@@ -37,8 +37,8 @@ mixAndMatch = (n) ->
 
 market = new Market('BTC', 'USD')
 
-count = 1000000
-block_size = 10000
+count = 10000
+block_size = 100
 iterations = Math.floor(count/block_size)
 
 console.log "Generating #{block_size} random orders..."

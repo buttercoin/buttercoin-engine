@@ -1,5 +1,6 @@
 test.uses 'Datastore.Order',
-          'Datastore.Amount'
+          'Datastore.Amount',
+          'Datastore.Ratio'
 
 describe 'Order', ->
   beforeEach ->

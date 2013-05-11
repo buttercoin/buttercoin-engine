@@ -23,7 +23,7 @@ module.exports = class DataStore
     account = @balancesheet.get_account( args.account )
 
     try
-      amount = new Amount(args.amount)
+      amount = Amount.take(args.amount)
     catch e
       throw Error('Only string amounts are supported in order to ensure accuracy')
 
