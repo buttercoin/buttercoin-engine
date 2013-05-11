@@ -1,6 +1,8 @@
 hd = require('heapdump')
 Market = require('../lib/datastore/market')
 Order = require ('../lib/datastore/order')
+Amount = require('../lib/datastore/amount')
+Ratio = require('../lib/datastore/ratio')
 DQ = require('deque')
 
 randomInt = (lower, upper) ->
@@ -13,12 +15,20 @@ acctID = 1
 makeRandomOrder = ->
   currencies = ['BTC', 'USD']
   currencies = currencies.reverse() if randomBool()
-  new Order({name: "user-#{acctID++}"}, currencies[0], randomInt(1, 5000), currencies[1], randomInt(1, 5000))
+  new Order({name: "user-#{acctID++}"},
+             currencies[0],
+             new Amount(randomInt(1, 5000).toString()),
+             currencies[1],
+             new Amount(randomInt(1, 5000).toString()))
 
 makeMatchingOrder = (n) ->
   currencies = if (n % 5) then ['BTC', 'USD'] else ['USD', 'BTC']
-  amt = if (n % 5) then 0.25 else 1
-  new Order({name: "user-#{acctID++}"}, currencies[0], amt, currencies[1], amt)
+  amt = if (n % 5) then 25 else 100
+  new Order({name: "user-#{acctID++}"},
+             currencies[0],
+             new Amount(amt.toString()),
+             currencies[1],
+             new Amount(amt.toString()))
 
 mixAndMatch = (n) ->
   if (n % 10) >= 5
@@ -28,8 +38,8 @@ mixAndMatch = (n) ->
 
 market = new Market('BTC', 'USD')
 
-count = 1000000
-block_size = 10000
+count = 10000
+block_size = 100
 iterations = Math.floor(count/block_size)
 
 console.log "Generating #{block_size} random orders..."
@@ -77,6 +87,24 @@ startTime = process.hrtime()
       rl.down()
       rl.clearLine()
       rl.write("--> #{(output_events/elapsedTime*1000).toFixed(0)} events/sec")
+      rl.down()
+      rl.clearLine()
+      rl.write("--> #{Amount.flyweight_pool.length}/#{Amount.num_allocated} Amount objects in pool")
+      rl.down()
+      rl.clearLine()
+      rl.write("--> #{Amount.num_put} Amount objects put")
+      rl.down()
+      rl.clearLine()
+      rl.write("--> #{Amount.num_took} Amount objects took")
+      rl.down()
+      rl.clearLine()
+      rl.write("--> #{Ratio.flyweight_pool.length}/#{Ratio.num_allocated} Ratio objects in pool")
+      rl.down()
+      rl.clearLine()
+      rl.write("--> #{Ratio.num_put} Ratio objects put")
+      rl.down()
+      rl.clearLine()
+      rl.write("--> #{Ratio.num_took} Ratio objects took")
       rl.resume()
 
 elapsedTime = process.hrtime(startTime)

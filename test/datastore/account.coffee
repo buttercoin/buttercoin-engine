@@ -31,11 +31,11 @@ describe 'Account', ->
     bal.should.not.equal @account.balances.USD
 
   it 'should be able to credit a balance', ->
-    amount = '3.141596281203071307479289982375230237197499234'
+    amount = '31415962812030713'
     @account.credit('USD', amt(amount)).toString().should.equal(amount)
 
   it 'should be able to debit a balance', ->
-    amount = '5.398982919394105808134814845710341848259923589'
+    amount = '53989829193838'
     @account.credit('USD', amt(amount))
     @account.credit('USD', amt(amount))
     @account.debit('USD', amt(amount)).toString().should.equal(amount)

@@ -1,6 +1,7 @@
-Market = require('../../lib/datastore/market')
-Book = require('../../lib/datastore/book')
-Order = require('../../lib/datastore/order')
+test.uses "Datastore.Market",
+          "Datastore.Book",
+          "Datastore.Order",
+          "Datastore.Amount"
 
 describe 'Market', ->
   bob = {name: 'bob'}
@@ -65,23 +66,23 @@ describe 'Market', ->
 
     closed = results.shift()
     closed.should.succeed_with('order_filled')
-    closed.order.price.should.equal(8)
+    closed.order.price.should.equal_amount(amt 8)
 
     closed = results.shift()
     closed.should.succeed_with('order_filled')
-    closed.order.price.should.equal(10)
+    closed.order.price.should.equal_amount(amt 10)
 
     opened = results.shift()
     opened.should.succeed_with('order_opened')
-    opened.order.price.should.equal(10)
-    opened.order.offered_amount.should.equal(10)
-    opened.order.received_amount.should.equal(1)
+    opened.order.price.should.equal_amount(amt 10)
+    opened.order.offered_amount.should.equal_amount(amt 10)
+    opened.order.received_amount.should.equal_amount(amt 1)
 
     partial = results.shift()
     partial.should.succeed_with('order_partially_filled')
-    partial.filled_order.price.should.equal(9)
-    partial.filled_order.received_amount.should.equal(2)
-    partial.filled_order.offered_amount.should.equal(18)
+    partial.filled_order.price.should.equal_amount(amt 9)
+    partial.filled_order.received_amount.should.equal_amount(amt 2)
+    partial.filled_order.offered_amount.should.equal_amount(amt 18)
 
   xit 'should handle random orders and end up in a good state', ->
     # TODO - write a 'canonical' simulation for the market, throw random data at both, verify

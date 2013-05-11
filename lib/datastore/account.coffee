@@ -16,7 +16,7 @@ module.exports = class Account
 
   get_balance: (currency) =>
     @assert_valid_currency(currency)
-    @balances[currency]?.clone() || new Amount('0')
+    @balances[currency]?.clone() || Amount.zero
   
   credit: (currency, amount) =>
     balance = @get_balance(currency)
