@@ -84,5 +84,14 @@ describe 'Market', ->
     partial.filled_order.received_amount.should.equal_amount(amt 2)
     partial.filled_order.offered_amount.should.equal_amount(amt 18)
 
+  it 'should be able to cancel an open order', ->
+    order = sellBTC(jen, 1, 10)
+    @market.add_order order
+    order.price = order.price.inverse()
+    @market.cancel_order order
+
+  xit 'should fail when trying to cancel a non-existant order', ->
+
   xit 'should handle random orders and end up in a good state', ->
     # TODO - write a 'canonical' simulation for the market, throw random data at both, verify
+

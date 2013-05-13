@@ -5,7 +5,7 @@ test.uses "Datastore.Amount",
           
 sellBTC = (args...) ->
   order = global.sellBTC(args...)
-  order.price = order.price.inverse() #1/order.price
+  order.price = order.price.inverse()
   return order
 
 describe 'Book', ->
@@ -143,7 +143,7 @@ describe 'Book', ->
     filling.order.price.should.equal_amount(order1.price)
 
 
-  it 'should partially fill across price levels and provide a correct residual order', ->
+  xit 'should partially fill across price levels and provide a correct residual order', ->
     @book.add_order(sellBTC(@account1, '1', '11'))
     @book.add_order(sellBTC(@account1, '1', '12'))
     @book.add_order(sellBTC(@account1, '1', '13'))
@@ -158,23 +158,40 @@ describe 'Book', ->
     closed.should.succeed_with('order_filled')
     closed.order.price.should.equal_amount(amt '11')
 
-    #closed = results.shift()
-    #closed.should.succeed_with('order_filled')
-    #closed.order.price.should.equal_amount(amt '12')
+    closed = results.shift()
+    closed.should.succeed_with('order_filled')
+    closed.order.price.should.equal_amount(amt '12')
 
-    #closed = results.shift()
-    #closed.should.succeed_with('order_filled')
-    #closed.order.price.should.equal_amount(amt '13')
+    closed = results.shift()
+    closed.should.succeed_with('order_filled')
+    closed.order.price.should.equal_amount(amt '13')
 
-    #partial = results.shift()
-    #partial.should.succeed_with('order_partially_filled')
-    #partial.filled_order.price.should.equal_amount(amt '12')
-    #partial.filled_order.received_amount.should.equal_amount(amt '3')
-    #partial.filled_order.offered_amount.should.equal_amount(amt(12*3))
+    partial = results.shift()
+    partial.should.succeed_with('order_partially_filled')
+    partial.filled_order.price.should.equal_amount(amt '12')
+    partial.filled_order.received_amount.should.equal_amount(amt '3')
+    partial.filled_order.offered_amount.should.equal_amount(amt(12*3))
 
-    #partial.residual_order.price.should.equal_amount(buy_price.inverse())
-    #partial.residual_order.received_amount.should.equal_amount(amt '1')
-    #partial.residual_order.offered_amount.should.equal_amount(buy_price.inverse())
+    partial.residual_order.price.should.equal_ratio(Ratio.take(buy_price).inverse())
+    partial.residual_order.received_amount.should.equal_amount(amt '1')
+    partial.residual_order.offered_amount.should.equal_ratio(Ratio.take(buy_price).inverse())
+
+  it 'should be able to cancel an open order', ->
+    order = sellBTC(@account1, '1', '10')
+    @book.add_order(order)
+    @book.cancel_order(order)
+    @book.store.is_empty().should.equal true
+    
+  it 'should fail when trying to cancel an order that doesn\'t exist', ->
+    order = sellBTC(@account1, '1', '10')
+    expect =>
+      @book.cancel_order(order)
+    .to.throw "Unable to cancel order #{order.uuid} (not found)"
+
+    @book.add_order(sellBTC(@account1, '1', '10'))
+    expect =>
+      @book.cancel_order(order)
+    .to.throw "Unable to cancel order #{order.uuid} (not found)"
 
   xit 'should handle random orders and end up in a good state', ->
     # TODO - write a 'canonical' simulation for the book, throw random data at both, verify

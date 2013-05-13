@@ -7,6 +7,9 @@ describe 'Order', ->
     @account = {}
     @order = new Order({}, 'USD', amt('1'), 'BTC', amt('10'))
 
+  it 'should have a uuid', ->
+    @order.uuid.length.should.equal 36
+
   it 'should only be constructed with amounts', ->
     expect ->
       new Order({}, 'USD', 1, 'BTC', amt('10'))

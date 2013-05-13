@@ -34,6 +34,9 @@ class BookStore
       left.compareTo(right))
     @size = 0
 
+  get_level: (price) =>
+    @tree.get(price)
+
   add_to_price_level: (price, order) =>
     level = @tree.get(price)
 
@@ -48,7 +51,6 @@ class BookStore
 
     level.orders.push(order)
     level.size = level.size.add(order.offered_amount)
-
 
   # TODO - optimize this to allow for halting
   for_levels_above: (price, cb) =>
@@ -175,4 +177,35 @@ module.exports = class Book
       kind: 'order_opened'
       order: order
     }
+  
+  # XXX - unoptimized hack
+  filter_deqeue = (dq, pred) ->
+    result = new DQ.Dequeue()
+    xs = []
+    while dq.length > 0
+      x = dq.shift()
+      unless pred(x)
+        result.push(x)
+      else
+        xs.push(x)
+    return [result, xs]
+
+  cancel_order: (order) =>
+    level = @store.get_level(order.price)
+    unless level
+      throw new Error("Unable to cancel order #{order.uuid} (not found)")
+
+    [level.orders, xs] = filter_deqeue level.orders, (x) ->
+      x.uuid == order.uuid
+
+    if xs.length is 0
+      throw new Error("Unable to cancel order #{order.uuid} (not found)")
+
+    for x in xs
+      old = level.size
+      level.size = old.subtract(x.offered_amount)
+      Amount.put(old)
+
+    if level.size.is_zero()
+      @store.delete(order.price)
 

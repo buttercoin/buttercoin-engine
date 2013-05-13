@@ -15,6 +15,8 @@ catch err
 option '-R', '--reporter [REPORTER_NAME]', 'the mocha reporter to use'
 option '-t', '--test [TEST_NAME]', 'set the test to run'
 option '-D', '--debugger', 'use the debugger when running tests'
+option '-w', '--watch', 'use mocha\'s watch functionality'
+option '-G', '--growl', 'use mocha\'s growl integration'
 
 DEFAULT_REPORTER = "spec"
 
@@ -48,6 +50,9 @@ mocha = (options) ->
   if options.debugger
     args.push "--debug-brk"
   args.push "test/#{options.test}.coffee" if options.test
+
+  args.push "--watch" if options.watch
+  args.push "--growl" if options.growl
 
   process.env.NODE_ENV='test'
   launch './node_modules/.bin/mocha', args, process.env, -> console.log "done"

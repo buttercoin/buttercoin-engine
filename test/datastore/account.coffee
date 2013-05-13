@@ -58,5 +58,36 @@ describe 'Account', ->
     order.received_currency.should.equal 'BTC'
     order.received_amount.should.equal receipt_amount
 
+    expect(@account.open_orders[order.uuid]).to.be.an.instanceOf Order
+
     @account.get_balance('USD').toString().should.equal '0'
 
+  xit 'should be able to fill an order and update balances', ->
+  xit 'should not be able to fill a non-existant order', ->
+
+  it 'should be able to cancel an unfilled order and refund balances', ->
+    offer_amount = amt('10')
+    receipt_amount = amt('1')
+
+    @account.credit('USD', offer_amount)
+    order = @account.create_order('USD', offer_amount, 'BTC', receipt_amount)
+
+    @account.cancel_order(order)
+    @account.get_balance('USD').should.equal_amount offer_amount
+    @account.get_balance('BTC').should.equal_amount Amount.zero
+
+    expect(@account.open_orders[order.uuid]).to.equal undefined
+    
+  it 'should not be able to cancel a non-existant order', ->
+    offer_amount = amt('10')
+    receipt_amount = amt('1')
+
+    @account.credit('USD', offer_amount)
+    order = @account.create_order('USD', offer_amount, 'BTC', receipt_amount)
+
+    @account.cancel_order(order)
+    expect =>
+      @account.cancel_order(order)
+    .to.throw "Cannot cancel order #{order.uuid} (does not exist)"
+
+  xit 'should provide an open order when given the order id', ->

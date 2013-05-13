@@ -58,5 +58,25 @@ describe 'DataStore', ->
         offered_amount: offer_amount
         received_currency: 'BTC'
         received_amount: receipt_amount
-      
+
+    xit 'should report not-sufficient funds when an account is under funded'
+
+    it 'should be able to cancel an order than hasn\'t been filled', ->
+      account_name = 'Peter'
+      account = @mockify(new Account())
+      offer_amount = amt '10'
+      receipt_amount = amt '1'
+      open_order = new Order(account.object, 'USD', offer_amount, 'BTC', receipt_amount)
+      market = @mockify(@supermarket.object.get_market('USD', 'BTC'))
+
+      @balancesheet.expects('get_account').once().withArgs(account_name).returns(account.object)
+      account.expects('get_order').once().withArgs(open_order.uuid).returns(open_order)
+      @supermarket.expects('get_market').once().withArgs(
+        open_order.offered_currency, open_order.received_currency
+      ).returns(market.object)
+      market.expects('cancel_order').once().withArgs(open_order)
+
+      @datastore.cancel_order(account_name, open_order.uuid)
+
+    xit 'should not be able to cancel an order tha has doesn\'t exist', ->
       

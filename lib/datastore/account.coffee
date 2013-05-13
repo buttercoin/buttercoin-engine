@@ -12,6 +12,7 @@ module.exports = class Account
       throw new Error("#{currency} is not a supported currency")
 
   constructor: ->
+    @open_orders = {}
     @balances = {}
 
   get_balance: (currency) =>
@@ -28,10 +29,25 @@ module.exports = class Account
     @balances[currency] = balance.subtract(amount)
     return @get_balance(currency)
 
+  get_order: (order_id) =>
+    @open_orders[order_id]
+
   create_order: (offered_currency, offered_amount, received_currency, received_amount) =>
     unless @get_balance(offered_currency).compareTo(offered_amount) >= 0
       throw Error("Insufficient #{offered_currency} funds to place order")
 
     @debit(offered_currency, offered_amount)
-    return new Order(this, offered_currency, offered_amount, received_currency, received_amount)
+    order = new Order(this, offered_currency, offered_amount, received_currency, received_amount)
+    @open_orders[order.uuid] = order
+
+    return order
+
+  #fill_order: =>
+
+  cancel_order: (order) =>
+    unless @open_orders[order.uuid] instanceof Order
+      throw new Error("Cannot cancel order #{order.uuid} (does not exist)")
+
+    @credit(order.offered_currency, order.offered_amount)
+    delete @open_orders[order.uuid]
 

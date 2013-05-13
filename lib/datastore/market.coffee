@@ -22,9 +22,18 @@ module.exports = class Market
     outcome = results.pop()
 
     unless outcome.kind is 'order_filled'
+      # XXX - hack, this should happen when the residual_order is made
+      outcome.residual_order.uuid = order.uuid
       # put in book
       results.push book.add_order(outcome.residual_order)
 
     results.push outcome
 
     return results
+
+  cancel_order: (order) =>
+    book =  if order.offered_currency == @left_currency
+              @right_book
+            else
+              @left_book
+    book.cancel_order(order)

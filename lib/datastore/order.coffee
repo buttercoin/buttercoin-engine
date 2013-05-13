@@ -1,8 +1,9 @@
 Amount = require('./amount')
 Ratio = require('./ratio')
+UUID = require('node-uuid')
 
 module.exports = class Order
-  constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount) ->
+  constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount, @uuid=UUID.v4()) ->
     throw new Error("offered amount must be an Amount object") unless @offered_amount.constructor is Amount
     throw new Error("received amount must be an Amount object") unless @received_amount.constructor is Amount
     @price = Ratio.take(@offered_amount, @received_amount)
