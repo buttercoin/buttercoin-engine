@@ -4,7 +4,6 @@ test.uses "trade_engine",
           "operations",
           "logger"
 
-BD = require('bigdecimal')
 Q = require("q")
 
 kTestFilename = 'test.log'
