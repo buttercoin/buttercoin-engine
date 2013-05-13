@@ -178,12 +178,16 @@ describe 'Book', ->
 
   it 'should be able to cancel an open order', ->
     order = sellBTC(@account1, '1', '10')
+    @account1.cancel_order = ->
+
     @book.add_order(order)
     @book.cancel_order(order)
     @book.store.is_empty().should.equal true
     
   it 'should fail when trying to cancel an order that doesn\'t exist', ->
     order = sellBTC(@account1, '1', '10')
+    @account1.cancel_order = ->
+       
     expect =>
       @book.cancel_order(order)
     .to.throw "Unable to cancel order #{order.uuid} (not found)"

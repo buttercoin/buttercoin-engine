@@ -205,6 +205,7 @@ module.exports = class Book
       old = level.size
       level.size = old.subtract(x.offered_amount)
       Amount.put(old)
+      x.account.cancel_order(x)
 
     if level.size.is_zero()
       @store.delete(order.price)

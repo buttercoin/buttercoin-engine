@@ -86,6 +86,8 @@ describe 'Market', ->
 
   it 'should be able to cancel an open order', ->
     order = sellBTC(jen, 1, 10)
+    jen.cancel_order = ->
+
     @market.add_order order
     order.price = order.price.inverse()
     @market.cancel_order order
