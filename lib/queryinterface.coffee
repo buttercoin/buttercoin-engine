@@ -1,3 +1,5 @@
+Account = require('./datastore/account')
+
 module.exports = class QueryInterface
   constructor: (@balancesheet, @supermarket) ->
     
@@ -18,9 +20,9 @@ module.exports = class QueryInterface
     #prices[0] = prices[0].inverse() if market.left_currency 
 
     if market.left_currency is left_currency
-      prices[1] = prices[1].inverse()
+      prices[1] = prices[1]?.inverse()
     else
-      prices[0] = prices[0].inverse()
+      prices[0] = prices[0]?.inverse()
 
 
     return {

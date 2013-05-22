@@ -9,23 +9,20 @@ describe 'ProcessingChainEntrance', ->
 
   beforeEach ->
     @journal = new Journal(kTestFilename)
-    @replication = {start: (->), send: (->)}
     @engine = new TradeEngine()
 
     @mockify 'journal'
-    @mockify 'replication'
     @mockify 'engine'
 
-    @pce = new ProcessingChainEntrance(@engine, @journal, @replication)
+    @pce = new ProcessingChainEntrance(@engine, @journal)
 
-  it 'should intialize the transaction log and replication when starting', (finish) ->
+  it 'should intialize the transaction log and when starting', (finish) ->
     @_journal.expects('start').once().returns(then: ->)
-    @_replication.expects('start').once().returns(then: ->)
 
     @pce.start()
     finish()
 
-  it 'should log, replicate, and execute a message upon receiving it', (finish) ->
+  it 'should log and execute a message upon receiving it', (finish) ->
     deferred = Q.defer()
     deferred.resolve(undefined)
 
@@ -34,7 +31,6 @@ describe 'ProcessingChainEntrance', ->
     messageJsonResult = JSON.stringify(operationResult)
 
     @_journal.expects('record').once().withArgs(messageJsonResult).returns(deferred.promise)
-    @_replication.expects('send').once().withArgs(messageJsonResult).returns(deferred.promise)
     @_engine.expects('execute_operation').once().withArgs(operationResult).returns("success")
 
     onComplete = (result) ->
@@ -53,7 +49,6 @@ describe 'ProcessingChainEntrance', ->
     messageJsonResult1 = JSON.stringify(operationResult1)
 
     @_journal.expects('record').once().withArgs(messageJsonResult1).returns(deferred.promise)
-    @_replication.expects('send').once().withArgs(messageJsonResult1).returns(deferred.promise)
     @_engine.expects('execute_operation').once().withArgs(operationResult1).returns("success")
 
     operation5 = {kind: "TEST", serial: 5}

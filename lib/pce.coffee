@@ -7,7 +7,7 @@ stump = require('stump')
 global_operation_serial = 0
 
 module.exports = class ProcessingChainEntrance
-  constructor: (@engine, @journal, @replication) ->
+  constructor: (@engine, @journal) ->
     stump.stumpify(@, @constructor.name)
 
   start: =>
@@ -16,7 +16,7 @@ module.exports = class ProcessingChainEntrance
       @journal.start(@forward_operation).then =>
         @info 'INITIALIZED/REPLAYED LOG'
         null
-      @replication.start() ]
+    ]
 
   forward_operation: (operation) =>
     if not operation
@@ -31,9 +31,8 @@ module.exports = class ProcessingChainEntrance
 
     return Q.all([
       @journal.record(message)
-      @replication.send(message)
     ]).then =>
-      @info('FORWARD DONING', retval.toString() )
+      @info('FORWARDING', retval.toString() )
       packet = {
         operation: operation
         retval: retval.toString()
