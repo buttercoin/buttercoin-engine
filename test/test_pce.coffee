@@ -45,7 +45,7 @@ describe 'ProcessingChainEntrance', ->
     deferred.resolve(undefined)
 
     operation1 = {kind: "TEST"}
-    operationResult1 = {kind: "TEST", serial: 1}
+    operationResult1 = {kind: "TEST", serial: 0}
     messageJsonResult1 = JSON.stringify(operationResult1)
 
     @_journal.expects('record').once().withArgs(messageJsonResult1).returns(deferred.promise)
@@ -61,7 +61,7 @@ describe 'ProcessingChainEntrance', ->
     @pce.forward_operation(operation1).then(onComplete1).then =>
       expect =>
         @pce.forward_operation(operation5)
-      .to.throw "Serial Number 5 != 2"
+      .to.throw "Serial Number 5 != 1"
       finish()
     .done()
 

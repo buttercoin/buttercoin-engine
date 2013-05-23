@@ -1,11 +1,11 @@
-Account = require './lib/datastore/account'
-Amount = require './lib/datastore/amount'
-Order = require './lib/datastore/order'
-BalanceSheet = require './lib/datastore/balancesheet'
-Book = require './lib/datastore/book'
-Market = require './lib/datastore/market'
-SuperMarket = require './lib/datastore/supermarket'
-DataStore = require './lib/datastore/datastore'
+Account = require '../../lib/datastore/account'
+Amount = require '../../lib/datastore/amount'
+Order = require '../../lib/datastore/order'
+BalanceSheet = require '../../lib/datastore/balancesheet'
+Book = require '../../lib/datastore/book'
+Market = require '../../lib/datastore/market'
+SuperMarket = require '../../lib/datastore/supermarket'
+DataStore = require '../../lib/datastore/datastore'
 
 ds = new DataStore()
 
