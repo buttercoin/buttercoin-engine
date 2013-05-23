@@ -1,5 +1,7 @@
+_ = require('underscore')
 Amount = require('./amount')
 Order = require('./order')
+UUID = require('node-uuid')
 
 module.exports = class Account
   @supported_currencies = {
@@ -11,7 +13,7 @@ module.exports = class Account
     unless @constructor.supported_currencies[currency]
       throw new Error("#{currency} is not a supported currency")
 
-  constructor: ->
+  constructor: (@uuid=UUID.v4()) ->
     @open_orders = {}
     @balances = {}
 
@@ -51,3 +53,38 @@ module.exports = class Account
     @credit(order.offered_currency, order.offered_amount)
     delete @open_orders[order.uuid]
 
+  ###
+  # create_snapshot
+  #
+  # Creates a snapshot of the datastore for serialization
+  ###
+  create_snapshot: =>
+    orders_snap = {}
+    for k, v of @open_orders
+      orders_snap[k] = v.create_snapshot()
+
+    balances_snap = {}
+    for k, v of @balances
+      balances_snap[k] = v.toString()
+
+    return {
+      uuid: @uuid
+      open_orders: orders_snap
+      balances: balances_snap
+    }
+
+  ###
+  # DataStore.load_snapshot
+  #
+  # Restore the state of the datastore from a snapshot
+  ###
+  @load_snapshot: (data) =>
+    acct = new Account(data.uuid)
+
+    for k, v of data.balances
+      acct.balances[k] = Amount.take(v)
+    
+    for k, v of data.open_orders
+      acct.open_orders[k] = Order.load_snapshot(v)
+     
+    return acct

@@ -4,11 +4,10 @@ Operations = require './operations'
 
 stump = require('stump')
 
-global_operation_serial = 0
-
 module.exports = class ProcessingChainEntrance
   constructor: (@engine, @journal) ->
-    stump.stumpify(@, @constructor.name)
+    stump.stumpify(this, @constructor.name)
+    @global_operation_serial = 0
 
   start: =>
     @info("Starting PCE")
@@ -22,10 +21,12 @@ module.exports = class ProcessingChainEntrance
     if not operation
       throw Error("No Operation supplied")
     if operation.serial
-      if operation.serial != global_operation_serial
-        throw Error("Serial Number " + operation.serial + " != " + global_operation_serial)
-    operation.serial = global_operation_serial
-    global_operation_serial += 1
+      if operation.serial != @global_operation_serial
+        @error "Serial Number " + operation.serial + " != " + @global_operation_serial
+        throw Error("Serial Number " + operation.serial + " != " + @global_operation_serial)
+    operation.serial = @global_operation_serial
+    @info "Bumping serial to:", @global_operation_serial
+    @global_operation_serial += 1
     message = JSON.stringify(operation)
     retval = @engine.execute_operation(operation)
 

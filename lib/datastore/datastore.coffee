@@ -51,31 +51,25 @@ module.exports = class DataStore
     market = @supermarket.get_market(order.offered_currency, order.received_currency)
     market.cancel_order(order)
 
-    ###
-  add_order: (args) =>
-    account = @balancesheet.get_account( args.account )
+  ###
+  # create_snapshot
+  #
+  # Creates a snapshot of the datastore for serialization
+  ###
+  create_snapshot: =>
+    return {
+      balancesheet: @balancesheet.create_snapshot()
+      supermarket: @supermarket.create_snapshot()
+    }
 
-    if not isString(args.account)
-      throw Error("Account must be a String")
-    account = @balancesheet.get_account( args.account )
-
-    if not isString(args.offered_currency)
-      throw Error("Offered Currency must be a String")
-    currency = account.get_currency( args.currency )
-
-    if not isString(args.received_currency)
-      throw Error("Received Currency must be a String")
-    currency = account.get_currency( args.currency )
-
-    if not isNumber(args.offered_amount)
-      throw Error("Offered Amount must be a Number")
-
-    if not isNumber(args.received_amount)
-      throw Error("Received Amount must be a Number")
-
-    market = @supermarket.get_market( args.offered_currency, args.received_currency )
-
-    market.add_order( account, args.offered_currency, args.offered_amount, args.received_amount )
-    ###
-
+  ###
+  # DataStore.load_snapshot
+  #
+  # Restore the state of the datastore from a snapshot
+  ###
+  @load_snapshot: (data) =>
+    ds = new DataStore()
+    ds.balancesheet = BalanceSheet.load_snapshot(data.balancesheet)
+    ds.supermarket = SuperMarket.load_snapshot(data.supermarket)
+    return ds
 

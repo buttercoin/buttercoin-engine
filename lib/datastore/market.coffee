@@ -37,3 +37,19 @@ module.exports = class Market
             else
               @left_book
     book.cancel_order(order)
+
+  create_snapshot: =>
+    return {
+      left:
+        currency: @left_currency
+        book: @left_book.create_snapshot()
+      right:
+        currency: @right_currency
+        book: @right_book.create_snapshot()
+    }
+
+  @load_snapshot: (data) =>
+    market = new Market(data.left.currency, data.right.currency)
+    market.left_book = Book.load_snapshot(data.left.book)
+    market.right_book = Book.load_snapshot(data.right.book)
+    return market

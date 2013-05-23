@@ -24,3 +24,15 @@ module.exports = class SuperMarket
   route_order: (order) =>
     @get_market('USD', 'BTC').add_order(order)
 
+  create_snapshot: =>
+    result = {}
+    for k, v of @markets
+      result[k] = v.create_snapshot()
+    return result
+
+  @load_snapshot: (data) =>
+    sm = new SuperMarket()
+    for k, v of data
+      sm.markets[k] = Market.load_snapshot(v)
+    return sm
+

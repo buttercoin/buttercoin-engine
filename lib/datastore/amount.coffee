@@ -1,14 +1,5 @@
-#BigDecimal = require('bigdecimal').BigDecimal
-#BigRational = require('big-rational')
-
-#brToNumber = (x) ->
-  #x.num.valueOf() / x.denom.valueOf()
-
-#bdOne = new BigRational('1')
-
 bignum = require('bignum')
 DQ = require('deque')
-
 
 module.exports = class Amount
   flyweight_pool = new DQ.Dequeue()

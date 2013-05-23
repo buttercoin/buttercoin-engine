@@ -70,7 +70,43 @@ class BookStore
   is_empty: => @size is 0
 
   forEach: (cb) => @tree.forEach(cb)
+  
+  create_snapshot: =>
+    q_map = (queue, f) ->
+      cur = queue.head.next
+      result = []
+      while(cur isnt queue.tail)
+        d = cur.data
+        cur = cur.next
+        result.push f(d)
+      return result
 
+    levels = []
+    @tree.range().forEach (order_level, cur_price) =>
+      levels.push {
+        price: {
+          numerator: cur_price.numerator.toString(),
+          denominator: cur_price.denominator.toString(),
+        },
+        level: {
+          size: order_level.size.toString(),
+          orders: q_map(order_level.orders, (x) -> x.create_snapshot())
+        }
+      }
+
+    return levels
+
+  @load_snapshot: (data) =>
+    store = new BookStore()
+    for level in data
+      price = Ratio.take(Amount.take(level.price.numerator), Amount.take(level.price.denominator))
+      level = {
+        size: Amount.take(level.level.size)
+        orders: level.level.orders.map Order.load_snapshot
+      }
+      store.insert(price, level)
+
+    return store
 
 module.exports = class Book
   constructor: ->
@@ -210,3 +246,10 @@ module.exports = class Book
     if level.size.is_zero()
       @store.delete(order.price)
 
+  create_snapshot: =>
+    return {store: @store.create_snapshot()}
+
+  @load_snapshot: (data) =>
+    book = new Book()
+    book.store = BookStore.load_snapshot(data.store)
+    return book

@@ -1,6 +1,5 @@
 module.exports.Order = require('./lib/datastore/order')
 module.exports.Journal = require('./lib/journal')
-module.exports.Replication = require('./lib/replication')
 module.exports.TradeEngine = require('./lib/trade_engine')
 module.exports.ProcessingChainEntrance = require('./lib/pce')
 module.exports.QueryInterface = require('./lib/queryinterface')
