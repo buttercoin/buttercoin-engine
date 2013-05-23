@@ -40,3 +40,10 @@ module.exports = class ProcessingChainEntrance
       }
       return packet
 
+  create_snapshot: =>
+    deferred = Q.defer()
+    deferred.resolve
+      serial: @global_operation_serial
+      snapshot: @engine.datastore.create_snapshot()
+    return deferred.promise
+
