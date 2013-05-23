@@ -13,11 +13,11 @@ module.exports = class Journal
     @readstream = null
     @writefd = null
 
-  start: (execute_operation) =>
+  start: (execute_operation, load_snapshot) =>
     return QFS.exists(@filename).then (retval) =>
       if retval
         Q.fcall =>
-          @replay_log(execute_operation).then =>
+          @replay_log(execute_operation, load_snapshot).then =>
             # This is dangerous
             @initialize_log("a")
       else
@@ -41,7 +41,7 @@ module.exports = class Journal
       # console.log 'GOT FD', writefd
       @writefd = writefd
 
-  replay_log: (execute_operation) =>
+  replay_log: (execute_operation, load_snapshot) =>
     # XXX: This code is basically guaranteed to have chunking problems right now.
     # Fix and then test rigorously!!!
 
@@ -83,16 +83,20 @@ module.exports = class Journal
       else
         rest = ''
 
-      # console.log 'LENS', data.length, chunk.length, rest.length
-      # console.log 'CHUNK', chunk.toString()
+      #console.log 'LENS', data.length, chunk.length, rest.length
+      #console.log 'CHUNK', chunk.toString()
 
-      # console.log 'rest', rest
+      #console.log 'rest', rest.toString()
 
 
       if chunk.length == lenprefix
         operation = JSON.parse(chunk.toString())
-        # console.log 'operation', operation
-        execute_operation(operation)
+
+        if operation.snapshot
+          #console.log "JOURNAL LOADING SNAPSHOT:", load_snapshot
+          load_snapshot(operation)
+        else
+          execute_operation(operation)
         @readstream.unshift(rest)
       else
         @readstream.unshift(data)
@@ -103,7 +107,7 @@ module.exports = class Journal
   record: (message) =>
     # XXX: make sure previous write finishes before starting next
     
-    # console.log 'RECORDING', message
+    #console.log 'RECORDING', message
     if @writefd == null
       # console.log 'NO WRITEFD AVAILABLE'
       return Q.when(null)
@@ -111,6 +115,7 @@ module.exports = class Journal
     # message = JSON.stringify(operation)
 
     l = message.length
+    #console.log "LENGTH", l
 
     part = jspack.Pack('I', [l])
 

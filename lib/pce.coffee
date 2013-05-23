@@ -12,7 +12,7 @@ module.exports = class ProcessingChainEntrance
   start: =>
     @info("Starting PCE")
     Q.all [
-      @journal.start(@forward_operation).then =>
+      @journal.start(@forward_operation, @load_snapshot).then =>
         @info 'INITIALIZED/REPLAYED LOG'
         null
     ]
@@ -47,3 +47,15 @@ module.exports = class ProcessingChainEntrance
       snapshot: @engine.datastore.create_snapshot()
     return deferred.promise
 
+  load_snapshot: (data) =>
+    @info "PCE LOADING SNAPSHOT"
+    @global_operation_serial = data.serial
+    @engine.datastore = DataStore.load_snapshot(data.snapshot)
+    @info "PCE LOADED SNAPSHOT. EXPECTING SERIAL", @global_operation_serial
+
+  dump_snapshot: =>
+    @info "PCE DUMPING SNAPSHOT"
+    @journal.initialize_log("w").then =>
+      @create_snapshot().then (snapshot) =>
+        @journal.record(JSON.stringify snapshot).then =>
+          @info "DONE DUMPING SNAPSHOT"
