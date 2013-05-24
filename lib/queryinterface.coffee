@@ -9,7 +9,8 @@ module.exports = class QueryInterface
     acct = @balancesheet.get_account(account_id)
     results = {}
     for c, v of Account.supported_currencies
-      results[c] = acct.get_balance(c) if v
+      results[c] = acct.get_balance(c).toString() if v
+
     return results
 
   get_spread: (left_currency, right_currency) ->
