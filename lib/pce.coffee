@@ -50,7 +50,7 @@ module.exports = class ProcessingChainEntrance
   load_snapshot: (data) =>
     @info "PCE LOADING SNAPSHOT"
     @global_operation_serial = data.serial
-    @engine.datastore = DataStore.load_snapshot(data.snapshot)
+    DataStore.load_snapshot(data.snapshot, @engine.datastore)
     @info "PCE LOADED SNAPSHOT. EXPECTING SERIAL", @global_operation_serial
 
   dump_snapshot: =>

@@ -67,8 +67,8 @@ module.exports = class DataStore
   #
   # Restore the state of the datastore from a snapshot
   ###
-  @load_snapshot: (data) =>
-    ds = new DataStore()
+  @load_snapshot: (data, ds) =>
+    ds ||= new DataStore()
     ds.balancesheet = BalanceSheet.load_snapshot(data.balancesheet)
     ds.supermarket = SuperMarket.load_snapshot(data.supermarket)
     return ds
