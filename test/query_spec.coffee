@@ -13,7 +13,10 @@ describe "QueryInterface", ->
   beforeEach ->
     @balancesheet = @mockify new BalanceSheet()
     @supermarket = @mockify new SuperMarket()
-    @qi = new QueryInterface(@balancesheet.object, @supermarket.object)
+    ds = {}
+    ds.balancesheet = @balancesheet.object
+    ds.supermarket = @supermarket.object
+    @qi = new QueryInterface(ds)
 
     @mockify 'qi'
 

@@ -56,6 +56,8 @@ module.exports = class ProcessingChainEntrance
   dump_snapshot: =>
     @info "PCE DUMPING SNAPSHOT"
     @journal.initialize_log("w").then =>
-      @create_snapshot().then (snapshot) =>
-        @journal.record(JSON.stringify snapshot).then =>
-          @info "DONE DUMPING SNAPSHOT"
+      @create_snapshot()
+    .then (snapshot) =>
+      @journal.record(JSON.stringify snapshot)
+    .then =>
+      @info "DONE DUMPING SNAPSHOT"

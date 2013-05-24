@@ -1,7 +1,9 @@
 Account = require('./datastore/account')
 
 module.exports = class QueryInterface
-  constructor: (@balancesheet, @supermarket) ->
+  constructor: (@datastore) ->
+    @balancesheet = @datastore.balancesheet
+    @supermarket = @datastore.supermarket
     
   get_balances: (account_id) =>
     acct = @balancesheet.get_account(account_id)
