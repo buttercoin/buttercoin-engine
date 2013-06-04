@@ -1,14 +1,15 @@
 test.uses "Datastore.Market",
           "Datastore.Book",
           "Datastore.Order",
-          "Datastore.Amount"
+          "Datastore.Amount",
+          "Datastore.Account"
 
 describe 'Market', ->
-  bob = {name: 'bob'}
-  sue = {name: 'sue'}
-  jen = {name: 'jen'}
 
   beforeEach ->
+    @bob = new Account()
+    @sue = new Account()
+    @jen = new Account()
     @market = new Market('BTC', 'USD')
 
   it 'should initialize with a buy book and a sell book', ->
@@ -44,9 +45,9 @@ describe 'Market', ->
 
 
   it 'should close an order if there are multiple partial matches', ->
-    @market.add_order sellBTC(jen, 1, 10)
-    @market.add_order sellBTC(sue, 1, 10)
-    results = @market.add_order buyBTC(bob, 2, 20)
+    @market.add_order sellBTC(@jen, 1, 10)
+    @market.add_order sellBTC(@sue, 1, 10)
+    results = @market.add_order buyBTC(@bob, 2, 20)
     results.should.have.length(3)
     
     closed = results.shift()
@@ -57,10 +58,10 @@ describe 'Market', ->
     closed.should.succeed_with('order_filled')
 
   it 'should open a partial order if demand remains after closing out other orders', ->
-    @market.add_order sellBTC(jen, 1, 15)
-    @market.add_order sellBTC(jen, 1, 8)
-    @market.add_order sellBTC(sue, 1, 10)
-    results = @market.add_order buyBTC(bob, 3, 30)
+    @market.add_order sellBTC(@jen, 1, 15)
+    @market.add_order sellBTC(@jen, 1, 8)
+    @market.add_order sellBTC(@sue, 1, 10)
+    results = @market.add_order buyBTC(@bob, 3, 30)
 
     results.should.have.length(4)
 
@@ -85,8 +86,8 @@ describe 'Market', ->
     partial.filled_order.offered_amount.should.equal_amount(amt 18)
 
   it 'should be able to cancel an open order', ->
-    order = sellBTC(jen, 1, 10)
-    jen.cancel_order = ->
+    order = sellBTC(@jen, 1, 10)
+    @jen.cancel_order = ->
 
     @market.add_order order
     order.price = order.price.inverse()
