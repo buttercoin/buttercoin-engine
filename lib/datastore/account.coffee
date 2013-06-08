@@ -96,7 +96,7 @@ module.exports = class Account
     acct = new Account(data.uuid)
 
     for k, v of data.balances
-      acct.balances[k] = Amount.take(v)
+      acct.balances[k] = new Amount(v)
     
     for k, v of data.open_orders
       acct.open_orders[k] = Order.load_snapshot(v)

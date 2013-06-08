@@ -2,25 +2,6 @@ Amount = require('./amount')
 DQ = require('deque')
 
 module.exports = class Ratio
-  flyweight_pool = new DQ.Dequeue()
-  @flyweight_pool = flyweight_pool
-  @num_allocated = 0
-  @num_took = 0
-  @num_put = 0
-
-  @take: (numerator, denominator) ->
-    if flyweight_pool.isEmpty()
-      return new Ratio(numerator, denominator)
-    else
-      @num_took += 1
-      x = flyweight_pool.pop()
-      Ratio.init(x, numerator, denominator)
-
-  @put: (ratio) ->
-    #throw new Error("Invalid Ratio: #{ratio}") unless ratio instanceof Ratio
-    @num_put += 1
-    flyweight_pool.push(ratio)
-
   @init: (ratio, numerator, denominator) ->
     ratio.numerator = numerator || Amount.zero
     ratio.denominator = denominator || Amount.one
@@ -30,7 +11,7 @@ module.exports = class Ratio
     if ratio.denominator.is_zero() then throw new Error('Denominator cannot be 0')
 
     # XXX - don't use .value?
-    gcd = Amount.take(ratio.numerator.value.gcd(ratio.denominator.value).toString())
+    gcd = new Amount(ratio.numerator.value.gcd(ratio.denominator.value).toString())
 
     old = ratio.numerator
     ratio.numerator = ratio.numerator.divide(gcd)
@@ -38,16 +19,14 @@ module.exports = class Ratio
     ratio.whole = ratio.numerator.divide(ratio.denominator) #.multiply(ratio.denominator)
     ratio.fraction = ratio.numerator.mod(ratio.denominator)
 
-    Amount.put(gcd)
     return ratio
 
   constructor: (numerator, denominator) ->
-    Ratio.num_allocated += 1
     Ratio.init(this, numerator, denominator)
 
   compareTo: (other) =>
     # TODO - better coercion story
-    other = Ratio.take(other) if other instanceof Amount
+    other = new Ratio(other) if other instanceof Amount
     result = @whole.compareTo(other.whole)
     if result is 0
       if @denominator.eq(other.denominator) is 0
@@ -56,44 +35,37 @@ module.exports = class Ratio
         left = @fraction.multiply(other.denominator)
         right = other.fraction.multiply(@denominator)
         result = left.compareTo(right)
-        Amount.put(left)
-        Amount.put(right)
 
     return result
 
   eq: (other) =>
     # TODO - better coercion story
     if other instanceof Amount
-      other = Ratio.take(other)
-      cleanup = true
+      other = new Ratio(other)
     result = @numerator.eq(other.numerator) and @denominator.eq(other.denominator)
-    Ratio.put(other) if cleanup
     return result
 
   inverse: =>
-    Ratio.take(@denominator.clone(), @numerator.clone())
+    new Ratio(@denominator.clone(), @numerator.clone())
 
   add: (other) =>
     if (other instanceof Amount)
       left = other.multiply(@denominator)
       numer = left.add(@numerator)
 
-      result = Ratio.take(
+      result = new Ratio(
         left.add(@numerator),
         @denominator
       )
-      Amount.put(left)
       return result
     else
       # TODO - assert Ratio instance?
       x = @numerator.multiply(other.denominator)
       y = other.numerator.multiply(@denominator)
-      result = Ratio.take(
+      result = new Ratio(
         x.add(y),
         @denominator.multiply(other.denominator)
       )
-      Amount.put(x)
-      Amount.put(y)
 
       return result
 
@@ -101,39 +73,32 @@ module.exports = class Ratio
   subtract: (other) =>
     if (other instanceof Amount)
       left = other.multiply(@denominator)
-      result = Ratio.take(
+      result = new Ratio(
         @numerator.subtract(left),
         @denominator
       )
-      Amount.put(left)
       return result
     else
       # TODO - assert Ratio instance?
       x = @numerator.multiply(other.denominator)
       y = other.numerator.multiply(@denominator)
-      result = Ratio.take(
+      result = new Ratio(
         x.subtract(y),
         @denominator.multiply(other.denominator)
       )
-      Amount.put(x)
-      Amount.put(y)
 
       return result
 
   multiply: (other) =>
     if other instanceof Amount
-      other = Ratio.take(other)
-      cleanup = true
-    result = Ratio.take(@numerator.multiply(other.numerator), @denominator.multiply(other.denominator))
-    Ratio.put(other) if cleanup
+      other = new Ratio(other)
+    result = new Ratio(@numerator.multiply(other.numerator), @denominator.multiply(other.denominator))
     return result
 
   divide: (other) =>
     if other instanceof Amount
-      other = Ratio.take(other)
-      cleanup = true
-    result = Ratio.take(@numerator.multiply(other.denominator), @denominator.multiply(other.numerator))
-    Ratio.put(other) if cleanup
+      other = new Ratio(other)
+    result = new Ratio(@numerator.multiply(other.denominator), @denominator.multiply(other.numerator))
     return result
 
   toString: =>

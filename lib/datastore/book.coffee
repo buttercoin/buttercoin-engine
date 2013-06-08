@@ -91,9 +91,9 @@ class BookStore
   @load_snapshot: (data) =>
     store = new BookStore()
     for level in data
-      price = Ratio.take(Amount.take(level.price.numerator), Amount.take(level.price.denominator))
+      price = new Ratio(new Amount(level.price.numerator), new Amount(level.price.denominator))
       level = {
-        size: Amount.take(level.level.size)
+        size: new Amount(level.level.size)
         orders: level.level.orders.map Order.load_snapshot
       }
       store.insert(price, level)
@@ -135,7 +135,6 @@ module.exports = class Book
           amount_remaining = amount_remaining.subtract(cur_order.offered_amount)
           x = price.multiply(cur_order.offered_amount)
           amount_spent = amount_spent.add(x)
-          Ratio.put(x)
 
           order_level.size = order_level.size.subtract(cur_order.offered_amount)
           results.push mkCloseOrder(cur_order)
@@ -172,8 +171,7 @@ module.exports = class Book
       @store.delete(x.price)
 
     order.offered_amount = amount_spent.toAmount()
-    Ratio.put(order.price)
-    order.price = Ratio.take(order.offered_amount, order.received_amount)
+    order.price = new Ratio(order.offered_amount, order.received_amount)
     #order.offered_amount.divide(order.received_amount)
     if amount_remaining.is_zero()
       order.account.fill_order(order)
@@ -184,7 +182,6 @@ module.exports = class Book
         kind:   'not_filled'
         residual_order: orig_order
       }
-      order.free()
     else
       # TODO - move to Order?
       filled = new Order(order.account,
@@ -202,7 +199,6 @@ module.exports = class Book
       order.account.open_orders[remaining.uuid] = remaining
 
       results.push mkPartialOrder(orig_order, filled, remaining)
-      order.free()
 
     return results
   
@@ -241,7 +237,6 @@ module.exports = class Book
     for x in xs
       old = level.size
       level.size = old.subtract(x.offered_amount)
-      Amount.put(old)
       x.account.cancel_order(x)
 
     if level.size.is_zero()

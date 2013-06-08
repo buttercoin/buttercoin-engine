@@ -40,8 +40,8 @@ describe "QueryInterface", ->
 
   it 'should provide bid and ask prices', ->
     mkt = new Market('BTC', 'USD')
-    bid_price = Ratio.take(amt '9')
-    ask_price = Ratio.take(amt '11')
+    bid_price = new Ratio(amt '9')
+    ask_price = new Ratio(amt '11')
 
     @supermarket.expects('get_market').once().withArgs('BTC', 'USD').returns(mkt)
     @_qi.expects('top_of_book').once().withArgs(mkt.left_book).returns(price: bid_price)
