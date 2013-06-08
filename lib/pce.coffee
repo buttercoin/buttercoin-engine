@@ -1,6 +1,5 @@
 Q = require 'q'
 DataStore = require './datastore/datastore'
-Operations = require './operations'
 serialize = require('./util').serialize
 
 stump = require('stump')

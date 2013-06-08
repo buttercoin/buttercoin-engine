@@ -14,8 +14,6 @@ module.exports = class Amount
       catch e
         throw new Error('String initializer cannot be parsed to a number')
     else
-      console.log "AMOUNT:", amount
-      console.log "VALUE:", value
       throw new Error('Must intialize from string')
 
     return amount
