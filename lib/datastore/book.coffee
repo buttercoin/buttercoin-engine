@@ -119,6 +119,7 @@ module.exports = class Book
     @store.for_levels_above order.price, (price, order_level) =>
       # close the whole price level if we can
       if order_level.size.lte(amount_remaining)
+
         amount_filled = amount_filled.add(order_level.size)
         amount_remaining = amount_remaining.subtract(order_level.size)
         amount_spent = amount_spent.add(price.multiply(order_level.size))
@@ -150,7 +151,7 @@ module.exports = class Book
           order_level.orders.unshift(cur_order)
         else if cur_order?.offered_amount.gt(Amount.zero)
           # diminish next order by remaining amount
-          [filled, remaining] = cur_order.split(amount_remaining)
+          [filled, remaining] = cur_order.account.split_order(cur_order, amount_remaining)
           order_level.size = order_level.size.subtract(amount_remaining)
           amount_filled = amount_filled.add(amount_remaining)
           amount_spent = amount_spent.add(price.multiply(amount_remaining))
@@ -161,10 +162,13 @@ module.exports = class Book
 
           # report the partially filled order
           results.push mkPartialOrder(cur_order, filled, remaining)
+          return false # don't want more price levels
         return false # don't want more price levels
 
     closed.forEach (x) =>
-      joinQueues(results, x.order_level.orders, mkCloseOrder)
+      joinQueues(results, x.order_level.orders, (order) ->
+        order.account.fill_order(order)
+        mkCloseOrder(order))
       @store.delete(x.price)
 
     order.offered_amount = amount_spent.toAmount()
@@ -172,6 +176,7 @@ module.exports = class Book
     order.price = Ratio.take(order.offered_amount, order.received_amount)
     #order.offered_amount.divide(order.received_amount)
     if amount_remaining.is_zero()
+      order.account.fill_order(order)
       results.push mkCloseOrder(order)
     else if amount_filled.is_zero()
       results.push {
@@ -186,12 +191,16 @@ module.exports = class Book
                         order.offered_currency,
                         amount_spent.toAmount(),
                         order.received_currency,
-                        amount_filled.toAmount())
+                        amount_filled.toAmount(),
+                        orig_order.uuid)
       remaining = new Order(order.account,
                             order.offered_currency,
                             orig_order.price.inverse().multiply(amount_remaining).toAmount(),
                             order.received_currency,
                             new Ratio(orig_order.received_amount).subtract(amount_filled).toAmount())
+      order.account.fill_order(filled)
+      order.account.open_orders[remaining.uuid] = remaining
+
       results.push mkPartialOrder(orig_order, filled, remaining)
       order.free()
 

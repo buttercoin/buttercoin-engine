@@ -61,7 +61,7 @@ describe "QueryInterface", ->
 
   it 'should be able to inspect the top of a book', ->
     book = new Book()
-    book.add_order(buyBTC({acct: 'fake'}, 1, 10))
+    book.add_order(buyBTC(new Account(), 1, 10))
 
     results = @qi.top_of_book(book)
     results.price.should.equal_amount amt('10')

@@ -14,7 +14,8 @@ module.exports = class Order
       if reversed then @received_currency else @offered_currency,
       if reversed then @received_amount   else @offered_amount,
       if reversed then @offered_currency  else @received_currency,
-      if reversed then @offered_amount    else @received_amount)
+      if reversed then @offered_amount    else @received_amount,
+      if reversed then undefined          else @uuid)
 
   split: (amount) =>
     r_amount = @received_amount.divide(@offered_amount).multiply(amount)
@@ -22,7 +23,8 @@ module.exports = class Order
     filled = new Order(
       @account,
       @offered_currency, amount,
-      @received_currency, r_amount)
+      @received_currency, r_amount,
+      @uuid)
 
     remaining = new Order(
       @account,

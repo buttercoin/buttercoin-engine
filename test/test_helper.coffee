@@ -58,11 +58,17 @@ class TestHelper
 
 global.TestHelper = TestHelper
 
+amt = (x) -> new Amount(x?.toString())
+  
 global.buyBTC = (acct, numBtc, numDollars) ->
-  new Order(acct, 'USD', new Amount(numDollars.toString()), 'BTC', new Amount(numBtc.toString()))
+  acct.credit('USD', amt(numDollars))
+  acct.create_order('USD', amt(numDollars),
+                    'BTC', amt(numBtc))
 
 global.sellBTC = (acct, numBtc, numDollars) ->
-  new Order(acct, 'BTC', new Amount(numBtc.toString()), 'USD', new Amount(numDollars.toString()))
+  acct.credit('BTC', amt(numBtc))
+  acct.create_order('BTC', amt(numBtc),
+                    'USD', amt(numDollars))
 
 global.logResults = (results) ->
   displaySold = (x) ->
@@ -104,8 +110,7 @@ global.test =
 global.test.module_helpers =
   'Datastore.Amount': ->
     global.Amount = global.Datastore.Amount
-    global.amt = (x) ->
-      new global.Datastore.Amount(x?.toString())
+    global.amt = amt
 
   'Datastore.Ratio': ->
     global.Ratio = global.Datastore.Ratio

@@ -51,6 +51,15 @@ module.exports = class Account
     @credit(order.received_currency, order.received_amount)
     delete @open_orders[order.uuid]
 
+  split_order: (order, amount) =>
+    unless @open_orders[order.uuid] instanceof Order
+      throw new Error("Cannot split order #{order.uuid} (does not exist)")
+    
+    [filled, remaining] = order.split(amount)
+    @fill_order(filled)
+    @open_orders[remaining.uuid] = remaining
+    return [filled, remaining]
+
   cancel_order: (order) =>
     unless @open_orders[order.uuid] instanceof Order
       throw new Error("Cannot cancel order #{order.uuid} (does not exist)")

@@ -1,4 +1,5 @@
 test.uses "Datastore.Amount",
+          "Datastore.Account",
           "Datastore.Book",
           "Datastore.Order",
           "Datastore.Ratio"
@@ -11,8 +12,8 @@ sellBTC = (args...) ->
 describe 'Book', ->
   beforeEach ->
     @book = new Book()
-    @account1 = {name: "acct1"}
-    @account2 = {name: "acct2"}
+    @account1 = new Account()
+    @account2 = new Account()
 
   it 'should be able to add an order', ->
     order = buyBTC(@account1, 1, 10)
@@ -57,7 +58,7 @@ describe 'Book', ->
   it 'should preserve the order in which orders are received', ->
     @book.add_order(sellBTC(@account1, 1, 10))
     @book.add_order(sellBTC(@account2, 1, 10))
-    results = @book.fill_orders_with(buyBTC({name: 'acct3'}, 1, 10))
+    results = @book.fill_orders_with(buyBTC(new Account(), 1, 10))
     results.should.have.length(2)
 
     sold = results.shift()
@@ -78,6 +79,24 @@ describe 'Book', ->
     bought.should.succeed_with('order_filled')
     bought.order.account.should.equal(@account2)
 
+  it 'closed orders should update the account appropriately', ->
+    expected = {}
+    expected[@account1.uuid] = {
+      "USD": @account1.get_balance("USD").add(amt(10)),
+      "BTC": amt(0)
+    }
+    expected[@account2.uuid] = {
+      "USD": amt(0),
+      "BTC": @account2.get_balance("BTC").add(amt(1))
+    }
+
+    @book.add_order(sellBTC(@account1, 1, 10))
+    @book.fill_orders_with(buyBTC(@account2, 1, 10))
+   
+    for a in [@account1, @account2]
+      expected[a.uuid].USD.should.equal_amount a.get_balance("USD")
+      expected[a.uuid].BTC.should.equal_amount a.get_balance("BTC")
+
   it 'should be able to partially close an open order', ->
     @book.add_order(sellBTC(@account1, 2, 2))
     results = @book.fill_orders_with(buyBTC(@account2, 1, 1))
@@ -94,6 +113,9 @@ describe 'Book', ->
     sold.should.succeed_with('order_filled')
     sold.order.account.should.equal(@account2)
 
+    @account1.get_balance('USD').should.equal_amount(1)
+    @account2.get_balance('BTC').should.equal_amount(1)
+
     # TODO - move sum checks to spec for Order.split
     sum = bought.filled_order.offered_amount.add(bought.residual_order.offered_amount)
     sum.should.equal_amount(bought.original_order.offered_amount)
@@ -103,6 +125,8 @@ describe 'Book', ->
 
     @book.fill_orders_with(buyBTC(@account2, 1, 1))
     @book.store.is_empty().should.be.true
+    @account1.get_balance('USD').should.equal_amount(2)
+    @account2.get_balance('BTC').should.equal_amount(2)
 
   it 'should be able to partially fill a new order', ->
     # TODO - sell must always be first!
@@ -118,6 +142,9 @@ describe 'Book', ->
     partial.original_order.account.should.equal(@account2)
     partial.filled_order.account.should.equal(@account2)
     partial.residual_order.account.should.equal(@account2)
+
+    @account1.get_balance('BTC').should.equal_amount(1)
+    @account2.get_balance('USD').should.equal_amount(1)
 
   it 'should indicate that there are not matches when orders don\'t overlap', ->
     @book.add_order(sellBTC(@account1, 1, 40))
