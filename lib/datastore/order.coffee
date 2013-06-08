@@ -6,7 +6,7 @@ module.exports = class Order
   constructor: (@account, @offered_currency, @offered_amount, @received_currency, @received_amount, @uuid=UUID.v4()) ->
     throw new Error("offered amount must be an Amount object") unless @offered_amount.constructor is Amount
     throw new Error("received amount must be an Amount object") unless @received_amount.constructor is Amount
-    @price = Ratio.take(@offered_amount, @received_amount)
+    @price = new Ratio(@offered_amount, @received_amount)
 
   clone: (reversed=false) =>
     new Order(
@@ -32,11 +32,6 @@ module.exports = class Order
       @received_currency, @received_amount.subtract(r_amount))
 
     return [filled, remaining]
-
-  free: =>
-    Amount.put @offered_amount
-    Amount.put @received_amount
-    Ratio.put @price
 
   ###
   # create_snapshot
@@ -64,7 +59,7 @@ module.exports = class Order
       # TODO - enable account lookup from ID
       data.account_id,
       data.offered_currency,
-      Amount.take(data.offered_amount),
+      new Amount(data.offered_amount),
       data.received_currency,
-      Amount.take(data.received_amount),
+      new Amount(data.received_amount),
       data.uuid)

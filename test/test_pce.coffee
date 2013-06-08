@@ -35,7 +35,7 @@ describe 'ProcessingChainEntrance', ->
 
     onComplete = (result) ->
       result.retval.should.equal "success"
-      result.operation.should.equal operation
+      JSON.stringify(result.operation).should.equal messageJsonResult
       finish()
 
     @pce.forward_operation(operation).then(onComplete).done()
@@ -55,7 +55,7 @@ describe 'ProcessingChainEntrance', ->
 
     onComplete1 = (result) ->
       result.retval.should.equal "success"
-      result.operation.should.equal operation1
+      JSON.stringify(result.operation).should.equal messageJsonResult1 
       true
 
     @pce.forward_operation(operation1).then(onComplete1).then =>

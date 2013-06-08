@@ -48,7 +48,7 @@ module.exports = class Account
     unless @open_orders[order.uuid] instanceof Order
       throw new Error("Cannot fill order #{order.uuid} (does not exist)")
 
-    @credit(order.received_currency, order.received_amount).toString()
+    @credit(order.received_currency, order.received_amount)
     delete @open_orders[order.uuid]
 
   split_order: (order, amount) =>
@@ -96,7 +96,7 @@ module.exports = class Account
     acct = new Account(data.uuid)
 
     for k, v of data.balances
-      acct.balances[k] = Amount.take(v)
+      acct.balances[k] = new Amount(v)
     
     for k, v of data.open_orders
       acct.open_orders[k] = Order.load_snapshot(v)

@@ -12,11 +12,11 @@ ds = new DataStore()
 b = ds.balancesheet
 
 a = b.get_account('Test')
-a.credit 'USD', Amount.take('100')
+a.credit 'USD', new Amount('100')
 
-a.create_order('USD', Amount.take('10'), 'BTC', Amount.take('1'))
-a.create_order('USD', Amount.take('10'), 'BTC', Amount.take('1'))
-o = a.create_order('USD', Amount.take('10'), 'BTC', Amount.take('1'))
+a.create_order('USD', new Amount('10'), 'BTC', new Amount('1'))
+a.create_order('USD', new Amount('10'), 'BTC', new Amount('1'))
+o = a.create_order('USD', new Amount('10'), 'BTC', new Amount('1'))
 
 data = o.create_snapshot()
 Order.load_snapshot(data)

@@ -1,6 +1,6 @@
 Q = require 'q'
 DataStore = require './datastore/datastore'
-Operations = require './operations'
+serialize = require('./util').serialize
 
 stump = require('stump')
 
@@ -33,12 +33,12 @@ module.exports = class ProcessingChainEntrance
     return Q.all([
       @journal.record(message)
     ]).then =>
-      @info('FORWARDING', retval.toString() )
+      @info('FORWARDING', serialize(retval))
       packet = {
         operation: operation
-        retval: retval.toString()
+        retval: retval
       }
-      return packet
+      return serialize(packet)
 
   create_snapshot: =>
     deferred = Q.defer()

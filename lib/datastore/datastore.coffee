@@ -17,7 +17,7 @@ isNumber = (s) ->
 module.exports = class DataStore
   constructor: (@balancesheet=(new BalanceSheet()), @supermarket=(new SuperMarket())) ->
 
-  deposit: (args) =>
+  update_account_balance: (args, account_op) =>
     #if not isString(args.account)
       #throw Error("Account must be a String")
     account = @balancesheet.get_account( args.account )
@@ -25,14 +25,20 @@ module.exports = class DataStore
     amount = args.amount
     unless amount instanceof Amount
       try
-        amount = Amount.take(args.amount)
+        amount = new Amount(args.amount)
       catch e
         throw Error('Only string amounts are supported in order to ensure accuracy')
 
-    account.credit(args.currency, amount)
+    account[account_op](args.currency, amount)
+
+  deposit: (args) => @update_account_balance(args, 'credit')
+  withdraw: (args) =>
+    @update_account_balance(args, 'debit')
 
   place_order: (args) =>
     account = @balancesheet.get_account( args.account )
+    args.offered_amount = new Amount(args.offered_amount) unless args.offered_amount instanceof Amount
+    args.received_amount = new Amount(args.received_amount) unless args.received_amount instanceof Amount
     order = account.create_order(args.offered_currency, args.offered_amount, args.received_currency, args.received_amount)
     @supermarket.route_order(order)
 

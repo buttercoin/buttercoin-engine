@@ -2,27 +2,7 @@ bignum = require('bignum')
 DQ = require('deque')
 
 module.exports = class Amount
-  flyweight_pool = new DQ.Dequeue()
-  @flyweight_pool = flyweight_pool
-  @num_allocated = 0
-  @num_took = 0
-  @num_put = 0
-
-  @take: (value) =>
-    if @flyweight_pool.length is 0 #isEmpty()
-      return new Amount(value)
-    else
-      @num_took += 1
-      x = @flyweight_pool.pop()
-      @init(x, value)
-
-  @put: (amount) =>
-    #throw new Error("Invalid Amount: #{amount}") unless amount instanceof Amount
-    @num_put += 1
-    @flyweight_pool.push(amount)
-
   @init: (amount, value) =>
-    Amount.num_allocated += 1
     if typeof value == 'undefined'
       value = '0'
 
@@ -54,7 +34,7 @@ module.exports = class Amount
 
   add: (amount) =>
     if amount instanceof Amount
-      sum = Amount.take()
+      sum = new Amount()
       sum.value = @value.add(amount.value)
       return sum
     else
@@ -62,7 +42,7 @@ module.exports = class Amount
 
   subtract: (amount) =>
     if amount instanceof Amount
-      difference = Amount.take()
+      difference = new Amount()
       difference.value = @value.sub(amount.value)
       return difference
     else
@@ -70,7 +50,7 @@ module.exports = class Amount
 
   divide: (amount) =>
     if amount instanceof Amount
-      result = Amount.take()
+      result = new Amount()
       result.value = @value.div(amount.value)
       return result
     else
@@ -78,7 +58,7 @@ module.exports = class Amount
 
   multiply: (amount) =>
     if amount instanceof Amount
-      result = Amount.take()
+      result = new Amount()
       result.value = @value.mul(amount.value)
       return result
     else
@@ -86,7 +66,7 @@ module.exports = class Amount
 
   mod: (amount) =>
     if amount instanceof Amount
-      result = Amount.take()
+      result = new Amount()
       result.value = @value.mod(amount.value)
       return result
     else
@@ -96,9 +76,15 @@ module.exports = class Amount
     return @value.toString() #brToNumber(@value).toString()
 
   clone: =>
-    result = Amount.take()
+    result = new Amount()
     result.value = @value
     return result
+
+  create_snapshot: =>
+    @toString()
+
+  @load_snapshot: (data) =>
+    new Amount(data)
 
 Amount.zero = new Amount('0')
 Amount.one = new Amount('1')
