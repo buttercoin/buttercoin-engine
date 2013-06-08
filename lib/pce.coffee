@@ -39,7 +39,6 @@ module.exports = class ProcessingChainEntrance
         operation: operation
         retval: retval
       }
-      @error serialize(packet)
       return serialize(packet)
 
   create_snapshot: =>
