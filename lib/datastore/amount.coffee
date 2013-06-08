@@ -100,5 +100,11 @@ module.exports = class Amount
     result.value = @value
     return result
 
+  create_snapshot: =>
+    @toString()
+
+  @load_snapshot: (data) =>
+    Amount.take(data)
+
 Amount.zero = new Amount('0')
 Amount.one = new Amount('1')

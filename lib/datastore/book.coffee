@@ -3,6 +3,7 @@ redblack = require('redblack')
 Order = require('./order')
 Amount = require('./amount')
 Ratio = require('./ratio')
+util = require('../util')
 
 joinQueues = (front, back, withCb) ->
   withCb ||= (x) -> x
@@ -72,15 +73,6 @@ class BookStore
   forEach: (cb) => @tree.forEach(cb)
   
   create_snapshot: =>
-    q_map = (queue, f) ->
-      cur = queue.head.next
-      result = []
-      while(cur isnt queue.tail)
-        d = cur.data
-        cur = cur.next
-        result.push f(d)
-      return result
-
     levels = []
     @tree.range().forEach (order_level, cur_price) =>
       levels.push {
@@ -90,7 +82,7 @@ class BookStore
         },
         level: {
           size: order_level.size.toString(),
-          orders: q_map(order_level.orders, (x) -> x.create_snapshot())
+          orders: util.map_queue(order_level.orders, (x) -> x.create_snapshot())
         }
       }
 

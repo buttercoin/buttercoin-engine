@@ -62,8 +62,27 @@ describe 'Account', ->
 
     @account.get_balance('USD').toString().should.equal '0'
 
-  xit 'should be able to fill an order and update balances', ->
-  xit 'should not be able to fill a non-existant order', ->
+  it 'should be able to fill an order and update balances', ->
+    offer_amount = amt('10')
+    receipt_amount = amt('1')
+
+    @account.credit('USD', offer_amount)
+    order = @account.create_order('USD', offer_amount, 'BTC', receipt_amount)
+    @account.fill_order(order)
+    @account.get_balance('USD').should.equal_amount Amount.zero
+    @account.get_balance('BTC').should.equal_amount receipt_amount
+
+  it 'should not be able to fill a non-existant order', ->
+    offer_amount = amt('10')
+    receipt_amount = amt('1')
+
+    @account.credit('USD', offer_amount)
+    order = @account.create_order('USD', offer_amount, 'BTC', receipt_amount)
+
+    @account.cancel_order(order)
+    expect =>
+      @account.fill_order(order)
+    .to.throw "Cannot fill order #{order.uuid} (does not exist)"
 
   it 'should be able to cancel an unfilled order and refund balances', ->
     offer_amount = amt('10')

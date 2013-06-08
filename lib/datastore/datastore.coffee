@@ -33,6 +33,8 @@ module.exports = class DataStore
 
   place_order: (args) =>
     account = @balancesheet.get_account( args.account )
+    args.offered_amount = Amount.take(args.offered_amount) unless args.offered_amount instanceof Amount
+    args.received_amount = Amount.take(args.received_amount) unless args.received_amount instanceof Amount
     order = account.create_order(args.offered_currency, args.offered_amount, args.received_currency, args.received_amount)
     @supermarket.route_order(order)
 

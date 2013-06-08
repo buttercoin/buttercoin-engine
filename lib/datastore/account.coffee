@@ -44,7 +44,12 @@ module.exports = class Account
 
     return order
 
-  #fill_order: =>
+  fill_order: (order) =>
+    unless @open_orders[order.uuid] instanceof Order
+      throw new Error("Cannot fill order #{order.uuid} (does not exist)")
+
+    @credit(order.received_currency, order.received_amount)
+    delete @open_orders[order.uuid]
 
   cancel_order: (order) =>
     unless @open_orders[order.uuid] instanceof Order
