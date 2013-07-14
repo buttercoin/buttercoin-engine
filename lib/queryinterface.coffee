@@ -1,4 +1,5 @@
 Account = require('./datastore/account')
+op = require('./operations')
 
 module.exports = class QueryInterface
   constructor: (@datastore) ->
@@ -7,11 +8,14 @@ module.exports = class QueryInterface
     
   get_balances: (account_id) =>
     acct = @balancesheet.get_account(account_id)
-    results = {}
+    balances = {}
     for c, v of Account.supported_currencies
-      results[c] = acct.get_balance(c).toString() if v
+      balances[c] = acct.get_balance(c).toString() if v
+    return op.create.result[op.BALANCES](account_id, balances)
 
-    return results
+  get_open_orders: (account_id) =>
+    acct = @balancesheet.get_account(account_id)
+    return op.create.result[op.OPEN_ORDERS](account_id, acct.get_open_orders())
 
   get_spread: (left_currency, right_currency) ->
     market = @supermarket.get_market(left_currency, right_currency)

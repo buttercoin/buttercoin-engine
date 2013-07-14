@@ -31,6 +31,8 @@ module.exports = class Account
     @balances[currency] = balance.subtract(amount)
     return @get_balance(currency)
 
+  get_open_orders: => @open_orders
+
   get_order: (order_id) =>
     @open_orders[order_id]
 

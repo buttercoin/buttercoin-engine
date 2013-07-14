@@ -7,6 +7,8 @@ test.uses "QueryInterface",
           "Datastore.Market",
           "Datastore.Book"
 
+op = require('../lib/operations')
+
 describe "QueryInterface", ->
   setup_mocking()
 
@@ -20,7 +22,7 @@ describe "QueryInterface", ->
 
     @mockify 'qi'
 
-  it 'should provide an account balance', ->
+  it 'should provide an account balances', ->
     account_id = 'Fred'
     acct = @mockify new Account()
     balances = {}
@@ -31,12 +33,30 @@ describe "QueryInterface", ->
         balances[c] = amt Math.random()
         acct.expects('get_balance').once().withArgs(c).returns(balances[c])
 
-    for c, v of @qi.get_balances(account_id)
+    result = @qi.get_balances(account_id)
+    result.result.should.equal op.BALANCES
+    result.account.should.equal account_id
+    for c, v of result.balances
       balances[c].should.equal_amount v
       delete balances[c]
 
     Object.keys(balances).length.should.equal 0
 
+  it 'should provide information about an open order'
+  it 'should provide informatoin about a closed order'
+
+  it 'should list all open orders for a given account', ->
+    account_id = 'Fred'
+    acct = @mockify new Account()
+    orders = ["order1", "order2"]
+
+    @balancesheet.expects('get_account').once().withArgs(account_id).returns(acct.object)
+    acct.expects('get_open_orders').once().returns(orders)
+
+    result = @qi.get_open_orders(account_id)
+    result.result.should.equal op.OPEN_ORDERS
+    result.account.should.equal account_id
+    result.orders.should.equal orders
 
   it 'should provide bid and ask prices', ->
     mkt = new Market('BTC', 'USD')
