@@ -1,6 +1,6 @@
 for op in ['ADD_DEPOSIT', 'WITHDRAW_FUNDS', 'CREATE_LIMIT_ORDER',
            'CANCEL_ORDER', 'GET_BALANCES', 'OPEN_ORDERS',
-           'ORDER_INFO', 'BALANCES', 'TICKER']
+           'ORDER_INFO', 'BALANCES', 'TICKER', 'SEND_BITCOINS']
   module.exports[op] = op
 
 op = module.exports
