@@ -43,7 +43,7 @@ describe "QueryInterface", ->
     Object.keys(balances).length.should.equal 0
 
   it 'should provide information about an open order'
-  it 'should provide informatoin about a closed order'
+  it 'should provide information about a closed order'
 
   it 'should list all open orders for a given account', ->
     account_id = 'Fred'
@@ -57,6 +57,25 @@ describe "QueryInterface", ->
     result.result.should.equal op.OPEN_ORDERS
     result.account.should.equal account_id
     result.orders.should.equal orders
+
+  it 'should provide a ticker quote', ->
+    market = @mockify new Market('BTC', 'USD')
+    mkt = market.object
+    bid_price = new Ratio(amt '9')
+    ask_price = new Ratio(amt '11')
+    last_price = new Ratio(amt '10')
+
+    @supermarket.expects('get_market').twice().withArgs('USD', 'BTC').returns(mkt)
+    market.expects('get_last_price').once().withArgs('USD').returns(last_price)
+    @_qi.expects('top_of_book').once().withArgs(mkt.left_book).returns(price: bid_price.inverse())
+    @_qi.expects('top_of_book').once().withArgs(mkt.right_book).returns(price: ask_price)
+
+    ticker = @qi.get_ticker('USD', 'BTC')
+    ticker.result.should.equal op.TICKER
+    ticker.bid.should.equal_amount bid_price
+    ticker.ask.should.equal_amount ask_price
+    #console.log "ticker price:", ticker.last.toString()
+    ticker.last.should.equal_ratio last_price
 
   it 'should provide bid and ask prices', ->
     mkt = new Market('BTC', 'USD')

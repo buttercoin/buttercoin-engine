@@ -28,11 +28,15 @@ module.exports = class QueryInterface
     else
       prices[0] = prices[0]?.inverse()
 
-
     return {
       bid: prices[0]
       ask: prices[1] #.inverse()
     }
+
+  get_ticker: (left_currency, right_currency) ->
+    market = @supermarket.get_market(left_currency, right_currency)
+    spread = @get_spread(left_currency, right_currency)
+    return op.create.result[op.TICKER](left_currency, spread.bid, spread.ask, market.get_last_price(left_currency))
 
   top_of_book: (book) ->
     result = {}

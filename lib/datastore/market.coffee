@@ -5,6 +5,7 @@ module.exports = class Market
   constructor: (@left_currency, @right_currency) ->
     @left_book = new Book()
     @right_book = new Book()
+    @last_order = undefined
 
   add_order: (order) =>
     book = null
@@ -21,6 +22,9 @@ module.exports = class Market
     results = other_book.fill_orders_with(flipped_order)
     outcome = results.pop()
 
+    if outcome.kind is 'order_filled' or outcome.kind is 'order_partially_filled'
+      @last_order = (outcome.order || outcome.filled_order)
+
     unless outcome.kind is 'order_filled'
       # XXX - hack, this should happen when the residual_order is made
       outcome.residual_order.uuid = order.uuid
@@ -30,6 +34,13 @@ module.exports = class Market
     results.push outcome
 
     return results
+
+  get_last_price: (currency) =>
+    return null unless @last_order
+    if @last_order.offered_currency is currency
+      return @last_order.price
+    else
+      return @last_order.price.inverse()
 
   cancel_order: (order) =>
     book =  if order.offered_currency == @left_currency

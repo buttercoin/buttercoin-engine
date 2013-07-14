@@ -93,6 +93,16 @@ describe 'Market', ->
     order.price = order.price.inverse()
     @market.cancel_order order
 
+  it.only 'should record the last execution price', ->
+    order1 = sellBTC(@bob, 1, 10)
+    order2 = buyBTC(@sue, 1, 10)
+    
+    @market.add_order(order1)
+    @market.add_order(order2)
+
+    @market.get_last_price('USD').should.equal_ratio(order2.price)
+    @market.get_last_price('BTC').should.equal_ratio(order2.price.inverse())
+
   xit 'should fail when trying to cancel a non-existant order', ->
 
   xit 'should handle random orders and end up in a good state', ->

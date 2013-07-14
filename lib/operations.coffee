@@ -17,6 +17,13 @@ create_results = {
     result: op.OPEN_ORDERS
     account: account_id
     orders: orders
+
+  TICKER: (currency, bid, ask, last) ->
+    result: op.TICKER
+    currency: currency
+    bid: bid
+    ask: ask
+    last: last
 }
 
 module.exports.create = {
